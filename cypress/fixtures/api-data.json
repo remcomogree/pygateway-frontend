@@ -1,0 +1,76 @@
+{
+  "workspaces": [
+    {
+      "id": "1",
+      "name": "default",
+      "description": "Default workspace"
+    },
+    {
+      "id": "2", 
+      "name": "staging",
+      "description": "Staging environment"
+    }
+  ],
+  "services": [
+    {
+      "id": "1",
+      "name": "user-service",
+      "workspace": "default",
+      "provider_id": "1",
+      "enabled": true,
+      "connect_timeout": 5000,
+      "streaming": false,
+      "max_request_size": 1048576,
+      "max_response_size": 1048576
+    },
+    {
+      "id": "2",
+      "name": "auth-service", 
+      "workspace": "default",
+      "provider_id": "2",
+      "enabled": true,
+      "connect_timeout": 3000,
+      "streaming": true,
+      "max_request_size": 2097152,
+      "max_response_size": 2097152
+    }
+  ],
+  "routes": [
+    {
+      "id": "1",
+      "name": "user-routes",
+      "service": "user-service",
+      "paths": ["/users"],
+      "methods": ["GET", "POST"],
+      "hosts": ["api.example.com"],
+      "regex_priority": 1
+    }
+  ],
+  "plugins": [
+    {
+      "id": "1",
+      "name": "rate-limiting",
+      "service": "user-service",
+      "config": {
+        "minute": 100,
+        "hour": 1000
+      }
+    }
+  ],
+  "providers": [
+    {
+      "id": "1",
+      "name": "Backend API",
+      "host": "backend.example.com",
+      "port": 443,
+      "enabled": true
+    },
+    {
+      "id": "2",
+      "name": "Auth Provider",
+      "host": "auth.example.com", 
+      "port": 443,
+      "enabled": true
+    }
+  ]
+}

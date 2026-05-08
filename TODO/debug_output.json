@@ -1,0 +1,324 @@
+{
+    "entries": [
+        {
+            "id": "e6d6d05b-7737-4d6d-a863-fc35574820da",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:36.427417",
+            "info": {
+                "phase": "response_finalized",
+                "timestamp": "2026-04-24T06:06:36.427417+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "final_status_code": 200,
+                "total_elapsed_ms": 635.5,
+                "response_headers": {
+                    "date": "Fri, 24 Apr 2026 06:06:36 GMT",
+                    "content-type": "application/json",
+                    "connection": "keep-alive",
+                    "server": "gunicorn/19.9.0",
+                    "access-control-allow-origin": "*",
+                    "access-control-allow-credentials": "true",
+                    "content-length": "421",
+                    "traceparent": "00-e9e24f449cb743c19037193cad0adf07-ae47e4532a057f8a-01",
+                    "x-response-time": "635.86ms",
+                    "x-request-id": "req_3f37a0443f2c415c8e3d230232566270"
+                },
+                "elapsed_ms": 1.89
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "83e8f771-cbf9-4a20-9a6d-81d70b04f831",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:36.425512",
+            "info": {
+                "phase": "response_filters",
+                "timestamp": "2026-04-24T06:06:36.425512+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "status_code": 200,
+                "elapsed_ms": 0.06
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "6b250e17-3869-462b-9a1c-af97467c9ded",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:36.425417",
+            "info": {
+                "phase": "upstream_complete",
+                "timestamp": "2026-04-24T06:06:36.425417+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "status_code": 200,
+                "upstream_elapsed_ms": 618.69
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "1afdcfb1-4a58-4d60-ad7d-24d81788b921",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:36.425376",
+            "info": {
+                "phase": "forward_success",
+                "timestamp": "2026-04-24T06:06:36.425376+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "upstream_url": "https://httpbin.org:443/anything/testdebug",
+                "status_code": 200,
+                "response_headers": {
+                    "date": "Fri, 24 Apr 2026 06:06:36 GMT",
+                    "content-type": "application/json",
+                    "connection": "keep-alive",
+                    "server": "gunicorn/19.9.0",
+                    "access-control-allow-origin": "*",
+                    "access-control-allow-credentials": "true",
+                    "content-length": "421"
+                },
+                "response_body_preview": "{\n  \"args\": {}, \n  \"data\": \"\", \n  \"files\": {}, \n  \"form\": {}, \n  \"headers\": {\n    \"Accept\": \"*/*\", \n    \"Accept-Encoding\": \"gzip, deflate\", \n    \"Content-Length\": \"0\", \n    \"Host\": \"httpbin.org\", \n    \"User-Agent\": \"curl/8.5.0\", \n    \"X-Amzn-Trace-Id\": \"Root=1-69eb086c-5240980b6fdd271f6312f45a\"\n  }, \n  \"json\": null, \n  \"method\": \"GET\", \n  \"origin\": \"80.208.71.255\", \n  \"url\": \"https://httpbin.org/anything/testdebug\"\n}\n",
+                "request_headers_sent": {
+                    "host": "httpbin.org",
+                    "user-agent": "curl/8.5.0",
+                    "accept": "*/*",
+                    "content-length": "0"
+                },
+                "request_body_size": 0,
+                "timeout_connect": 60.0,
+                "timeout_read": 60.0,
+                "timeout_write": 60.0,
+                "retries_configured": 5
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "a9a150ce-426d-42f3-b2f4-c5dec2abd4ce",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:35.806715",
+            "info": {
+                "phase": "policy_enforcement",
+                "timestamp": "2026-04-24T06:06:35.806715+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "denied": false,
+                "deny_status": null,
+                "consumer": null,
+                "elapsed_ms": 0.07
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "962dec30-efc2-450b-88b8-ef02d63c40fd",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:35.806636",
+            "info": {
+                "phase": "abac_enforcement",
+                "timestamp": "2026-04-24T06:06:35.806636+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "denied": false,
+                "deny_status": null,
+                "elapsed_ms": 0.05
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "84c3488e-51d8-4f1c-95f3-0229fc908418",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:35.806580",
+            "info": {
+                "phase": "phase_access",
+                "timestamp": "2026-04-24T06:06:35.806580+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "denied": false,
+                "deny_status": null,
+                "consumer": null,
+                "elapsed_ms": 0.06
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "fd289d89-7d3f-4d55-869c-e606ff7e7ae9",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:35.806507",
+            "info": {
+                "phase": "phase_rewrite",
+                "timestamp": "2026-04-24T06:06:35.806507+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "plugin_results": [],
+                "elapsed_ms": 0.01
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "e5786b85-61a2-4633-8e90-b32f59661066",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:35.806463",
+            "info": {
+                "phase": "phase_certificate",
+                "timestamp": "2026-04-24T06:06:35.806463+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "plugin_results": [],
+                "elapsed_ms": 0.06
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "d8bea9d3-8bf0-494c-a75b-da24cf33cdb1",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:35.794536",
+            "info": {
+                "phase": "global_plugins_loaded",
+                "timestamp": "2026-04-24T06:06:35.794536+00:00",
+                "plugin_results": [],
+                "plugin_errors": [],
+                "global_plugins": [
+                    "otlp"
+                ]
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "c23d1427-642d-4283-b9ed-834262d817ce",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:35.794446",
+            "info": {
+                "phase": "request_received",
+                "timestamp": "2026-04-24T06:06:35.794446+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "http_method": "GET",
+                "request_url": "http://testremog/testdebug",
+                "request_path": "/testdebug",
+                "query_string": null,
+                "host_header": "testremog",
+                "content_type": null,
+                "content_length": null,
+                "user_agent": "curl/8.5.0",
+                "request_headers": {
+                    "host": "testremog",
+                    "user-agent": "curl/8.5.0",
+                    "accept": "*/*"
+                },
+                "client_ip": "172.19.0.1",
+                "traceparent": "00-e9e24f449cb743c19037193cad0adf07-ae47e4532a057f8a-01"
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "a3bb22ec-5a1a-4e58-a164-52175b768a6a",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:35.794413",
+            "info": {
+                "phase": "owasp_inspection",
+                "timestamp": "2026-04-24T06:06:35.794413+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "blocked": false,
+                "block_status": null,
+                "elapsed_ms": 1.7
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "cc4d6e58-0714-4e6e-8aff-1eb5fad14e6c",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:35.794400",
+            "info": {
+                "phase": "service_resolve",
+                "timestamp": "2026-04-24T06:06:35.794400+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "service_host": "httpbin.org",
+                "service_port": 443,
+                "service_protocol": "https",
+                "service_path": "/anything",
+                "resolved": true,
+                "elapsed_ms": 0.12
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        },
+        {
+            "id": "9693fe68-da62-4c79-b790-25820f290ca1",
+            "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+            "service_name": "debug-test-service",
+            "timestamp": "2026-04-24T06:06:35.794364",
+            "info": {
+                "phase": "route_match",
+                "timestamp": "2026-04-24T06:06:35.794364+00:00",
+                "method": "GET",
+                "url": "http://testremog/testdebug",
+                "service_id": "30aef5e7-d193-4b0e-bb17-6b7f71f7f4f1",
+                "service_name": "debug-test-service",
+                "route_id": "4e9e9572-b713-4a74-96e7-965224209dac",
+                "route_name": "debug-test-route",
+                "route_paths": [
+                    "/testdebug"
+                ],
+                "route_hosts": [
+                    "testremog"
+                ],
+                "route_methods": [
+                    "GET",
+                    "POST",
+                    "PUT",
+                    "DELETE"
+                ],
+                "matched": true,
+                "elapsed_ms": 0.14
+            },
+            "x_request_id": "req_3f37a0443f2c415c8e3d230232566270"
+        }
+    ]
+}

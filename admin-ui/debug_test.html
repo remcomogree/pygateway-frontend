@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+</head>
+<body>
+    <h1>Debug Functionality Test</h1>
+    <button onclick="testGraphicalView()">Test Graphical View</button>
+    
+    <script>
+        // Mock data for testing
+        const API_BASE_URL = 'http://localhost:8000';
+        
+        // Mock debug entries
+        const mockDebugEntries = [
+            {
+                "id": "test-1",
+                "x_request_id": "req_test_123",
+                "timestamp": "2025-08-04T08:01:10.206698",
+                "info": {
+                    "phase": "global_plugins_loaded",
+                    "step": 0,
+                    "method": "GET",
+                    "status_code": 200,
+                    "service_name": "test-service"
+                }
+            },
+            {
+                "id": "test-2", 
+                "x_request_id": "req_test_123",
+                "timestamp": "2025-08-04T08:01:10.206698",
+                "info": {
+                    "phase": "upstream_forwarded",
+                    "step": 5,
+                    "method": "GET",
+                    "status_code": 200,
+                    "service_name": "test-service",
+                    "time_used": 0.174
+                }
+            }
+        ];
+        
+        function testGraphicalView() {
+            if (window.showGraphicalDebugView) {
+                window.showGraphicalDebugView('req_test_123', mockDebugEntries);
+            } else {
+                alert('Graphical debug view not loaded');
+            }
+        }
+    </script>
+    
+    <script src="js/debug_graphical.js"></script>
+</body>
+</html>

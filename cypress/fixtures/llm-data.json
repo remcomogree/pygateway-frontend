@@ -1,0 +1,114 @@
+{
+  "providers": [
+    {
+      "id": "1",
+      "name": "OpenAI Production",
+      "provider_type": "openai",
+      "api_key": "sk-prod-key",
+      "base_url": "https://api.openai.com/v1",
+      "enabled": true,
+      "cost_per_input_token": 0.001,
+      "cost_per_output_token": 0.002,
+      "requests_per_minute": 1000,
+      "default_model": "gpt-4"
+    },
+    {
+      "id": "2",
+      "name": "Anthropic Claude",
+      "provider_type": "anthropic", 
+      "api_key": "sk-ant-key",
+      "base_url": "https://api.anthropic.com",
+      "enabled": true,
+      "cost_per_input_token": 0.0015,
+      "cost_per_output_token": 0.003,
+      "requests_per_minute": 500,
+      "default_model": "claude-3-sonnet"
+    }
+  ],
+  "templates": [
+    {
+      "id": "1",
+      "name": "Customer Support",
+      "system_prompt": "You are a helpful customer support assistant. Be polite and professional.",
+      "user_prompt_template": "Customer question: {question}\nContext: {context}",
+      "variables": ["question", "context"],
+      "model_params": {
+        "temperature": 0.7,
+        "max_tokens": 1000
+      }
+    },
+    {
+      "id": "2",
+      "name": "Code Review",
+      "system_prompt": "You are a senior software engineer reviewing code. Provide constructive feedback.",
+      "user_prompt_template": "Review this code:\n{code}\nFocus on: {focus_areas}",
+      "variables": ["code", "focus_areas"],
+      "model_params": {
+        "temperature": 0.3,
+        "max_tokens": 2000
+      }
+    }
+  ],
+  "tools": [
+    {
+      "id": "1",
+      "name": "Weather API",
+      "category": "api",
+      "endpoint": "https://api.weather.com/v1/current",
+      "method": "GET",
+      "description": "Get current weather information",
+      "execution_risk": "low",
+      "timeout_seconds": 30,
+      "enabled": true,
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "Location to get weather for"
+          }
+        },
+        "required": ["location"]
+      }
+    }
+  ],
+  "security_policies": [
+    {
+      "id": "1",
+      "name": "Content Filter",
+      "policy_type": "content_filtering",
+      "rules": {
+        "blocked_keywords": ["violence", "harmful"],
+        "severity": "high"
+      },
+      "priority": 1,
+      "enabled": true
+    }
+  ],
+  "billing": {
+    "current_month_cost": 1250.75,
+    "previous_month_cost": 980.50,
+    "total_cost": 15420.25,
+    "current_month_requests": 50000,
+    "previous_month_requests": 40000,
+    "total_requests": 500000,
+    "provider_costs": [
+      {
+        "provider_name": "OpenAI Production",
+        "model": "gpt-4",
+        "request_count": 30000,
+        "input_tokens": 15000000,
+        "output_tokens": 8000000,
+        "cost": 750.50
+      },
+      {
+        "provider_name": "Anthropic Claude",
+        "model": "claude-3-sonnet",
+        "request_count": 20000,
+        "input_tokens": 10000000,
+        "output_tokens": 5000000,
+        "cost": 500.25
+      }
+    ]
+  }
+}

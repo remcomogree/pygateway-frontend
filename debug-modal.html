@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Consumer Policies Modal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .debug-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .debug-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+        }
+        .debug-modal.show {
+            display: flex;
+        }
+        .debug-modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Debug Consumer Policies Modal</h1>
+    <p>This page tests if modals appear correctly on the screen.</p>
+    
+    <button class="debug-button" onclick="showModal()">🔐 Test Consumer Policies Modal</button>
+    <button class="debug-button" onclick="showSimpleModal()">Show Simple Modal</button>
+    
+    <div id="debugModal" class="debug-modal">
+        <div class="debug-modal-content">
+            <button class="close-btn" onclick="hideModal()">&times;</button>
+            <h2>Debug Modal</h2>
+            <p>This is a test modal to check if modals appear on screen.</p>
+            <p>If you can see this modal, then the issue is with the React component.</p>
+            <p>If you cannot see this modal, then there's a CSS/display issue.</p>
+        </div>
+    </div>
+    
+    <div id="simpleModal" class="debug-modal">
+        <div class="debug-modal-content">
+            <button class="close-btn" onclick="hideSimpleModal()">&times;</button>
+            <h2>Simple Test Modal</h2>
+            <p>This is a basic modal test.</p>
+        </div>
+    </div>
+
+    <script>
+        function showModal() {
+            console.log('Showing debug modal...');
+            document.getElementById('debugModal').classList.add('show');
+        }
+        
+        function hideModal() {
+            console.log('Hiding debug modal...');
+            document.getElementById('debugModal').classList.remove('show');
+        }
+        
+        function showSimpleModal() {
+            console.log('Showing simple modal...');
+            document.getElementById('simpleModal').classList.add('show');
+        }
+        
+        function hideSimpleModal() {
+            console.log('Hiding simple modal...');
+            document.getElementById('simpleModal').classList.remove('show');
+        }
+        
+        // Test automatic modal display
+        setTimeout(() => {
+            console.log('Auto-showing modal in 2 seconds...');
+            showModal();
+        }, 2000);
+    </script>
+</body>
+</html>

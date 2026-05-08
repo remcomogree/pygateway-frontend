@@ -1,0 +1,215 @@
+
+Frontend Architecture Recommendations for a Fast, Scalable System
+This document presents a senior-level frontend architectural proposal based on the analysis of the current system (as described in frontend.md). The goal is to achieve:
+
+Extremely fast load times
+Support for large datasets (+1000 routes, services, plugins)
+Fast workspace switching
+Consistent and correct filtering
+Scalable architecture for future expansions
+Predictable data flow and minimal API noise
+
+
+1. Root Problems in the Current System
+The following architecture issues severely limit scalability, correctness, and performance:
+1.1 Incomplete Data Loading
+Only partial datasets are loaded:
+
+300 / 1255 routes
+50 / 273 services
+30 / 141 plugins
+This breaks filtering entirely because the missing items might be required for a selected workspace.
+1.2 Excessive API Calls
+Examples:
+
+57 service-count requests on WorkspacesTab
+Services loaded multiple times across tabs
+Routes loaded differently depending on tab access order
+This creates unnecessary network traffic and inconsistent application state.
+1.3 Filtering Cannot Work Correctly
+Client-side filtering only works when all data is loaded. Partial datasets make results incorrect or misleading.
+1.4 Tab-Based Loading Architecture Is Not Scalable
+Each tab fetching its own data leads to:
+
+Data duplication
+Race conditions
+Cache invalidation issues
+High API load
+This approach will not scale beyond a few hundred items.
+
+
+2. The Correct Approach: Central Master Data Layer
+To support thousands of items efficiently, adopt a Master Data Load Architecture:
+2.1 Load All Data Once on App Initialization
+At startup, perform exactly four API calls:
+GET /workspaces?limit=2000
+GET /services?limit=2000
+GET /routes?limit=5000
+GET /plugins?limit=5000
+
+
+All requests run in parallel.
+Total estimated payload for 57 workspaces, 273 services, 1255 routes, 141 plugins:
+
+< 1 MB total (fits comfortably in memory)
+This makes the system:
+
+Predictable
+Instantly filterable
+Extremely fast
+2.2 Store in a Global AppState / DataContext
+Your AppState should contain:
+state = {
+  workspaces: [],
+  services: [],
+  routes: [],
+  plugins: [],
+  selectedWorkspaceId: null,
+};
+
+
+All tabs consume the same cached data.
+2.3 No More Tab-Based Fetching
+Tabs never make API requests. They only:
+
+read from global state
+filter preloaded data
+This removes:
+
+inconsistent loading
+duplicated API calls
+slow page transitions
+
+
+3. Scalable Filtering Architecture
+With a single master dataset in memory, filtering becomes trivial.
+3.1 Workspace Selection
+When user selects a workspace:
+setSelectedWorkspaceId(id);
+
+
+No API requests needed.
+3.2 Filter Services by Workspace
+const filteredServices = services.filter(s => s.workspace_id === selectedWorkspaceId);
+
+
+3.3 Filter Routes by Workspace → Service Relationship
+const serviceIds = new Set(filteredServices.map(s => s.id));
+
+const filteredRoutes = routes.filter(r => serviceIds.has(r.service_id));
+
+
+3.4 Filter Plugins by Workspace → Service → Route Chain
+const routeIds = new Set(filteredRoutes.map(r => r.id));
+
+const filteredPlugins = plugins.filter(p => routeIds.has(p.route_id));
+
+
+All operations are O(n) and run instantly, even at thousands of entries.
+3.5 Pagination
+Pagination is purely client-side slicing:
+pagedRoutes = filteredRoutes.slice(offset, offset + limit);
+
+
+No network requests. No backend pagination needed.
+
+
+4. Recommended API Improvements
+Although not required, the backend can be improved to support scalability.
+4.1 Add Backend Filtering (Optional)
+Add parameters:
+?workspace_id={id}
+?service_id={id}
+
+
+This allows the frontend to fetch subtrees selectively in future architectures.
+4.2 Add GET /services/bulk?ids=[] and GET /routes/bulk?ids=[]
+If relationships grow more complex, these endpoints help reduce load.
+4.3 Introduce a Batch Endpoint (Optional)
+POST /batch
+{
+  "requests": [
+    { "method": "GET", "path": "/routes?service_id=x,y,z" },
+    { "method": "GET", "path": "/plugins?service_id=x,y,z" }
+  ]
+}
+
+
+This reduces roundtrips.
+
+
+5. Frontend Performance Enhancements
+5.1 Memoized Selectors
+Use React useMemo for every derived dataset.
+5.2 Indexed Lookup Maps
+For very large datasets (+10k), build maps:
+serviceById = new Map(services.map(s => [s.id, s]));
+routesByServiceId = groupBy(routes, "service_id");
+
+
+Reduces filtering times dramatically.
+5.3 Virtualized Table Rendering
+If UI tables may render 1000+ rows:
+
+Use React Window or React Virtualized
+Only 10–20 rows are mounted at a time
+This reduces:
+
+DOM load
+React reconciliation work
+
+
+6. Future-Proofing the System
+6.1 Support for 10k+ Items
+With the proposed architecture:
+
+Filtering remains instant
+No network bottlenecks
+Memory usage remains low (< 5MB)
+6.2 Consistent UX Across Tabs
+All tabs use the same datasets, ensuring:
+
+No mismatches
+No missing items
+No duplicated requests
+
+
+7. Implementation Checklist
+Must Implement
+
+Global AppState loads all master datasets on app start
+Remove tab-based data fetching
+All filters use client-side derived selectors
+Should Implement
+
+Indexed maps for fast lookup
+Memoized filtering
+Could Implement (Optional)
+
+Backend filter endpoints
+Batch API
+Route/service linking utilities
+
+
+8. Final Summary
+To build a fast, scalable frontend for a system with thousands of workspaces, services, routes, and plugins, the only sustainable architecture is:
+→ Load all master data once
+→ Cache globally
+→ Perform all filtering client-side
+→ Never re-fetch on tab changes
+This delivers:
+
+Instant workspace switching
+Zero unnecessary API calls
+Correct filtering every time
+Scales to tens of thousands of items
+Clean and maintainable code
+
+
+If you want, I can also create:
+
+A typescript implementation of the global AppState
+A data-loading service layer
+Selectors for filtering
+Virtualized table components
+Just tell me what you want next.

@@ -1,0 +1,2458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyGateway Admin UI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav a:hover,
+        .nav a.active {
+            background-color: #34495e;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background-color: #27ae60;
+            box-shadow: 0 0 8px rgba(39, 174, 96, 0.6);
+        }
+
+        .status-offline {
+            background-color: #e74c3c;
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+        }
+
+        .status-unknown {
+            background-color: #95a5a6;
+        }
+
+        .dataplane-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .last-seen {
+            font-style: italic;
+            color: #888;
+        }
+
+        .dashboard-dataplane-card {
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 1rem;
+            background: #f8f9fa;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .dashboard-dataplane-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-dataplane-card.offline {
+            background: #fff5f5;
+            border-color: #fecaca;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-enabled {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-disabled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 700px;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Ensure modal works well on smaller screens */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 1rem auto;
+                padding: 1.5rem;
+                max-height: calc(100vh - 2rem);
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        /* Plugin configuration form styles */
+        #pluginConfigSection {
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            background-color: #f8f9fa;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Scroll indicator */
+        #pluginConfigSection::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #pluginConfigSection::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        #pluginConfigSection::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        #pluginConfigSection::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Add a subtle gradient to indicate more content below */
+        #pluginConfigSection::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(transparent, rgba(248, 249, 250, 0.8));
+            pointer-events: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        #pluginConfigSection h3 {
+            margin-top: 0;
+            color: #495057;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 0.5rem;
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 10;
+        }
+
+        .plugin-config-field {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Improve form organization */
+        .config-field-group {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            background-color: white;
+        }
+
+        .config-field-group label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+
+        .config-field-description {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+
+        .loading, .error {
+            text-align: center;
+            padding: 1rem;
+            color: #6c757d;
+        }
+
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+        }
+
+        /* Configuration view styles */
+        .config-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .config-section {
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: 6px;
+            padding: 1.5rem;
+            border-left: 4px solid #3498db;
+        }
+
+        .config-section h3 {
+            margin: 0 0 1rem 0;
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+
+        .config-json {
+            background: #2d3748;
+            color: #a0aec0;
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .config-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .config-stat {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .config-stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .config-stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Configuration item styling */
+        .config-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            margin: 0.5rem 0;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .config-item:hover {
+            border-color: #3498db;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+        }
+
+        .config-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .config-item-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .config-item-type {
+            background: #3498db;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
+        .config-item-details {
+            margin-top: 0.5rem;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Edit modal styling */
+        .edit-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .edit-modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .edit-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 1rem;
+        }
+
+        .edit-modal-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .edit-textarea {
+            width: 100%;
+            min-height: 400px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 1rem;
+            resize: vertical;
+        }
+
+        .edit-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: flex-end;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        /* Enhanced form styling for route creation */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 0.25rem;
+            color: #64748b;
+            font-size: 0.85rem;
+            line-height: 1.3;
+        }
+
+        .form-group input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin: 0;
+        }
+
+        /* Custom scrollbar for webkit browsers */
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
+        /* Form section dividers */
+        .form-section {
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 1rem;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .form-section-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">PyGateway Admin</div>
+            <nav class="nav">
+                <a href="#" onclick="showSection('dashboard')" class="active">Dashboard</a>
+                <a href="#" onclick="showSection('workspaces')">Workspaces</a>
+                <a href="#" onclick="showSection('services')">Services</a>
+                <a href="#" onclick="showSection('routes')">Routes</a>
+                <a href="#" onclick="showSection('plugins')">Plugins</a>
+                <a href="#" onclick="showSection('dataplanes')">Dataplanes</a>
+                <a href="#" onclick="showSection('config')">Configuration</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section">
+            <div class="card">
+                <h2>Dashboard</h2>
+                <p>Welcome to PyGateway Admin UI</p>
+                <div id="dashboard-stats">
+                    <div class="loading">Loading dashboard...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workspaces Section -->
+        <div id="workspaces" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Workspaces</h2>
+                    <button class="btn btn-success" onclick="showCreateWorkspaceModal()">Add Workspace</button>
+                </div>
+                <div id="workspaces-content">
+                    <div class="loading">Loading workspaces...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Section -->
+        <div id="services" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Services</h2>
+                    <button class="btn btn-success" onclick="showCreateServiceModal()">Add Service</button>
+                </div>
+                <div id="services-content">
+                    <div class="loading">Loading services...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Routes Section -->
+        <div id="routes" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Routes</h2>
+                    <button class="btn btn-success" onclick="showCreateRouteModal()">Add Route</button>
+                </div>
+                <div id="routes-content">
+                    <div class="loading">Loading routes...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plugins Section -->
+        <div id="plugins" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Plugins</h2>
+                    <button class="btn btn-success" onclick="showCreatePluginModal()">Add Plugin</button>
+                </div>
+                <div id="plugins-content">
+                    <div class="loading">Loading plugins...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataplanes Section -->
+        <div id="dataplanes" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Dataplanes <span id="dataplaneCount" class="dataplane-info"></span></h2>
+                    <div>
+                        <button class="btn" onclick="loadDataplanes()">Refresh</button>
+                        <button class="btn" onclick="toggleAutoRefresh()" id="autoRefreshBtn">Auto-refresh: OFF</button>
+                    </div>
+                </div>
+                <div id="dataplanes-content">
+                    <div class="loading">Loading dataplanes...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Section -->
+        <div id="config" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Gateway Configuration</h2>
+                    <div>
+                        <button class="btn" onclick="loadConfiguration()" style="margin-right: 10px;">Refresh</button>
+                        <button class="btn btn-success" onclick="downloadConfiguration()">Download JSON</button>
+                    </div>
+                </div>
+                <div id="config-content">
+                    <div class="loading">Loading configuration...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Configuration Modal -->
+    <div id="editConfigModal" class="edit-modal">
+        <div class="edit-modal-content">
+            <div class="edit-modal-header">
+                <h2 class="edit-modal-title" id="editModalTitle">Edit Configuration</h2>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <div>
+                <label for="editConfigTextarea">Configuration (JSON)</label>
+                <textarea id="editConfigTextarea" class="edit-textarea" placeholder="Enter JSON configuration..."></textarea>
+            </div>
+            <div class="edit-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="saveConfiguration()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Workspace Modal -->
+    <div id="createWorkspaceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createWorkspaceModal')">&times;</span>
+            <h2>Create Workspace</h2>
+            <form id="createWorkspaceForm">
+                <div class="form-group">
+                    <label for="workspaceName">Name</label>
+                    <input type="text" id="workspaceName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="workspaceDescription">Description</label>
+                    <textarea id="workspaceDescription" name="description" rows="3" placeholder="Optional description for this workspace"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="workspaceEnabled">
+                        <input type="checkbox" id="workspaceEnabled" name="enabled" checked>
+                        Enabled
+                    </label>
+                </div>
+                <div style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-success">Create Workspace</button>
+                    <button type="button" class="btn" onclick="closeModal('createWorkspaceModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Service Modal -->
+    <div id="createServiceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createServiceModal')">&times;</span>
+            <h2>Create Service</h2>
+            <form id="createServiceForm">
+                <div class="form-group">
+                    <label for="serviceWorkspace">Workspace</label>
+                    <select id="serviceWorkspace" name="workspace_id" required>
+                        <option value="">Select a workspace...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="serviceName">Name</label>
+                    <input type="text" id="serviceName" name="name" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="serviceHost">Host</label>
+                        <input type="text" id="serviceHost" name="host" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="servicePort">Port</label>
+                        <input type="number" id="servicePort" name="port" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="serviceProtocol">Protocol</label>
+                        <select id="serviceProtocol" name="protocol">
+                            <option value="http">HTTP</option>
+                            <option value="https">HTTPS</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="servicePath">Path</label>
+                        <input type="text" id="servicePath" name="path" placeholder="/">
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-success">Create Service</button>
+                    <button type="button" class="btn" onclick="closeModal('createServiceModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Route Modal -->
+    <div id="createRouteModal" class="modal">
+        <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+            <span class="close" onclick="closeModal('createRouteModal')">&times;</span>
+            <h2>Create Route</h2>
+            <form id="createRouteForm">
+                <!-- Basic Configuration -->
+                <div class="form-section">
+                    <div class="form-section-title">Basic Configuration</div>
+                    
+                    <div class="form-group">
+                        <label for="routeName">Name *</label>
+                        <input type="text" id="routeName" name="name" required placeholder="my-api-route">
+                        <small>A descriptive name for this route</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="routeService">Service *</label>
+                        <select id="routeService" name="service_id" required>
+                            <option value="">Select a service</option>
+                        </select>
+                        <small>The backend service this route will forward requests to</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="routeEnabled" name="enabled" checked>
+                            Enabled
+                        </label>
+                        <small>Route will only process requests when enabled</small>
+                    </div>
+                </div>
+
+                <!-- Request Matching -->
+                <div class="form-section">
+                    <div class="form-section-title">Request Matching</div>
+                    
+                    <div class="form-group">
+                        <label for="routePaths">Paths (comma-separated)</label>
+                        <input type="text" id="routePaths" name="paths" placeholder="/api/v1/*, /users, /health">
+                        <small>URL paths that should match this route. Examples: /api/v1/users, /api/*, /health</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="routeHosts">Hosts (comma-separated)</label>
+                        <input type="text" id="routeHosts" name="hosts" placeholder="api.example.com, www.example.com">
+                        <small>Host headers that should match this route. Leave empty to match any host</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Protocols</label>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" name="protocols" value="http" checked> HTTP
+                            </label>
+                            <label>
+                                <input type="checkbox" name="protocols" value="https" checked> HTTPS
+                            </label>
+                        </div>
+                        <small>Which protocols this route should accept</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>HTTP Methods</label>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" name="methods" value="GET" checked> GET
+                            </label>
+                            <label>
+                                <input type="checkbox" name="methods" value="POST" checked> POST
+                            </label>
+                            <label>
+                                <input type="checkbox" name="methods" value="PUT" checked> PUT
+                            </label>
+                            <label>
+                                <input type="checkbox" name="methods" value="DELETE" checked> DELETE
+                            </label>
+                            <label>
+                                <input type="checkbox" name="methods" value="PATCH" checked> PATCH
+                            </label>
+                            <label>
+                                <input type="checkbox" name="methods" value="HEAD" checked> HEAD
+                            </label>
+                            <label>
+                                <input type="checkbox" name="methods" value="OPTIONS" checked> OPTIONS
+                            </label>
+                        </div>
+                        <small>Which HTTP methods this route should accept</small>
+                    </div>
+                </div>
+
+                <!-- Advanced Options -->
+                <div class="form-section">
+                    <div class="form-section-title">Advanced Options</div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="routeStripPath" name="strip_path" checked>
+                            Strip Path
+                        </label>
+                        <small>Remove the route path from the request before forwarding to the service. Example: /api/v1/users → /users</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="routePreserveHost" name="preserve_host">
+                            Preserve Host
+                        </label>
+                        <small>Forward the original Host header to the upstream service instead of using the service's host</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="routeRegexPriority">Regex Priority</label>
+                        <input type="number" id="routeRegexPriority" name="regex_priority" value="0" min="0" max="100">
+                        <small>Higher priority routes are matched first when multiple routes could match (0-100)</small>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1.5rem; border-top: 1px solid #e2e8f0; padding-top: 1.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('createRouteModal')">Cancel</button>
+                    <button type="submit" class="btn btn-success">Create Route</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Plugin Modal -->
+    <div id="createPluginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createPluginModal')">&times;</span>
+            <h2>Create Plugin</h2>
+            <form id="createPluginForm">
+                <div class="form-group">
+                    <label for="pluginName">Plugin Type</label>
+                    <select id="pluginName" name="name" required onchange="loadPluginSchema()">
+                        <option value="">Select a plugin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pluginService">Service (optional)</label>
+                    <select id="pluginService" name="service_id">
+                        <option value="">Global plugin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pluginRoute">Route (optional)</label>
+                    <select id="pluginRoute" name="route_id">
+                        <option value="">Any route</option>
+                    </select>
+                </div>
+                
+                <!-- Dynamic Plugin Configuration -->
+                <div id="pluginConfigSection" style="display: none;">
+                    <h3>
+                        Plugin Configuration 
+                        <span id="fieldCounter" style="font-size: 0.8em; color: #6c757d; font-weight: normal;"></span>
+                    </h3>
+                    <div id="pluginConfigFields"></div>
+                    
+                    <!-- Advanced: Raw JSON Editor -->
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label>
+                            <input type="checkbox" id="useRawJson" onchange="toggleRawJsonMode()"> 
+                            Use Raw JSON Configuration
+                        </label>
+                    </div>
+                    <div class="form-group" id="rawJsonSection" style="display: none;">
+                        <label for="pluginConfig">Configuration (JSON)</label>
+                        <textarea id="pluginConfig" name="config" rows="5" placeholder='{"key": "value"}'></textarea>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-success">Create Plugin</button>
+                    <button type="button" class="btn" onclick="closeModal('createPluginModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dataplane Details Modal -->
+    <div id="dataplaneDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Dataplane Details</h2>
+                <span class="close" onclick="closeModal('dataplaneDetailsModal')">&times;</span>
+            </div>
+            <div id="dataplaneDetailsContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost:8001/api/v1';
+        
+        // Global state
+        let workspaces = [];
+        let services = [];
+        let routes = [];
+        let plugins = [];
+        let dataplanes = [];
+        let availablePlugins = [];
+        
+        // Auto-refresh state
+        let autoRefreshInterval = null;
+        let autoRefreshEnabled = false;
+        const AUTO_REFRESH_INTERVAL = 30000; // 30 seconds
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+            loadWorkspaces();
+            loadServices();
+            loadRoutes();
+            loadPlugins();
+            loadDataplanes();
+            loadAvailablePlugins();
+        });
+
+        // Navigation
+        function showSection(sectionName) {
+            // Clear auto-refresh when switching sections
+            if (autoRefreshEnabled && sectionName !== 'dataplanes') {
+                toggleAutoRefresh(); // This will turn off auto-refresh
+            }
+            
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav a').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName).style.display = 'block';
+            
+            // Load section data
+            switch(sectionName) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'workspaces':
+                    loadWorkspaces();
+                    break;
+                case 'services':
+                    loadServices();
+                    break;
+                case 'routes':
+                    loadRoutes();
+                    break;
+                case 'plugins':
+                    loadPlugins();
+                    break;
+                case 'dataplanes':
+                    loadDataplanes();
+                    break;
+                case 'config':
+                    loadConfiguration();
+                    break;
+            }
+            
+            // Add active class to clicked nav link
+            event.target.classList.add('active');
+        }
+
+        // Dashboard
+        function loadDashboard() {
+            // Load both config and dataplanes data
+            Promise.all([
+                fetch(`${API_BASE_URL}/config/sync`).then(response => response.json()),
+                fetch(`${API_BASE_URL}/dataplanes`).then(response => response.json())
+            ])
+            .then(([configData, dataplanesData]) => {
+                const onlineDataplanes = dataplanesData.filter(dp => dp.status === 'online').length;
+                const totalDataplanes = dataplanesData.length;
+                
+                document.getElementById('dashboard-stats').innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div class="card">
+                            <h3>Workspaces</h3>
+                            <p style="font-size: 2rem; font-weight: bold; color: #9b59b6;">${configData.workspaces.length}</p>
+                        </div>
+                        <div class="card">
+                            <h3>Services</h3>
+                            <p style="font-size: 2rem; font-weight: bold; color: #3498db;">${configData.services.length}</p>
+                        </div>
+                        <div class="card">
+                            <h3>Routes</h3>
+                            <p style="font-size: 2rem; font-weight: bold; color: #27ae60;">${configData.routes.length}</p>
+                        </div>
+                        <div class="card">
+                            <h3>Plugins</h3>
+                            <p style="font-size: 2rem; font-weight: bold; color: #e74c3c;">${configData.plugins.length}</p>
+                        </div>
+                        <div class="card">
+                            <h3>Dataplanes</h3>
+                            <p style="font-size: 2rem; font-weight: bold; color: #f39c12;">
+                                <span class="status-indicator ${onlineDataplanes > 0 ? 'status-online' : 'status-offline'}"></span>
+                                ${onlineDataplanes}/${totalDataplanes}
+                            </p>
+                            <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                                ${onlineDataplanes === totalDataplanes ? 'All Online' : 
+                                  onlineDataplanes === 0 ? 'All Offline' : 
+                                  `${totalDataplanes - onlineDataplanes} Offline`}
+                            </p>
+                        </div>
+                        <div class="card">
+                            <h3>Config Version</h3>
+                            <p style="font-size: 1.2rem; font-weight: bold; color: #8e44ad;">${configData.version}</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Add dataplane status details if there are any dataplanes
+                if (dataplanesData.length > 0) {
+                    const dataplaneDetails = document.createElement('div');
+                    dataplaneDetails.className = 'card';
+                    dataplaneDetails.style.marginTop = '1rem';
+                    dataplaneDetails.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2>Dataplane Status</h2>
+                            <button class="btn btn-small" onclick="showSection('dataplanes')">View All</button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                            ${dataplanesData.map(dp => `
+                                <div class="dashboard-dataplane-card ${dp.status === 'offline' ? 'offline' : ''}">
+                                    <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                                        <span class="status-indicator ${dp.status === 'online' ? 'status-online' : 'status-offline'}"></span>
+                                        <strong style="margin-left: 0.5rem;">${dp.name}</strong>
+                                        <span style="margin-left: auto; font-size: 0.8em; color: #666; text-transform: capitalize;">${dp.status}</span>
+                                    </div>
+                                    <div style="font-size: 0.9rem; color: #666;">
+                                        <div>ID: <code style="font-size: 0.8em;">${dp.id.substring(0, 8)}...</code></div>
+                                        <div>Last seen: ${formatLastSeen(dp.last_seen)}</div>
+                                        <div>Uptime: ${formatUptime(dp.created_at)}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    document.getElementById('dashboard-stats').appendChild(dataplaneDetails);
+                }
+            })
+            .catch(error => {
+                document.getElementById('dashboard-stats').innerHTML = `
+                    <div class="error">Failed to load dashboard: ${error.message}</div>
+                `;
+            });
+        }
+
+        // Workspaces
+        function loadWorkspaces() {
+            fetch(`${API_BASE_URL}/workspaces`)
+                .then(response => response.json())
+                .then(data => {
+                    workspaces = data;
+                    displayWorkspaces();
+                    updateWorkspaceSelects();
+                })
+                .catch(error => {
+                    document.getElementById('workspaces-content').innerHTML = `
+                        <div class="error">Failed to load workspaces: ${error.message}</div>
+                    `;
+                });
+        }
+
+        function displayWorkspaces() {
+            const content = document.getElementById('workspaces-content');
+            if (workspaces.length === 0) {
+                content.innerHTML = '<p>No workspaces found. Create your first workspace to get started.</p>';
+                return;
+            }
+
+            const table = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Services</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${workspaces.map(workspace => {
+                            const serviceCount = services.filter(s => s.workspace_id === workspace.id).length;
+                            return `
+                                <tr>
+                                    <td><strong>${workspace.name}</strong></td>
+                                    <td>${workspace.description || 'No description'}</td>
+                                    <td>${serviceCount} service${serviceCount !== 1 ? 's' : ''}</td>
+                                    <td>
+                                        <span class="status-badge ${workspace.enabled ? 'status-enabled' : 'status-disabled'}">
+                                            ${workspace.enabled ? 'Enabled' : 'Disabled'}
+                                        </span>
+                                    </td>
+                                    <td>${new Date(workspace.created_at).toLocaleDateString()}</td>
+                                    <td>
+                                        <button class="btn" onclick="editWorkspace('${workspace.id}')">Edit</button>
+                                        <button class="btn btn-danger" onclick="deleteWorkspace('${workspace.id}', '${workspace.name}')">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            content.innerHTML = table;
+        }
+
+        function updateWorkspaceSelects() {
+            const workspaceSelects = document.querySelectorAll('select[name="workspace_id"]');
+            workspaceSelects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Select a workspace...</option>';
+                workspaces.forEach(workspace => {
+                    if (workspace.enabled) {
+                        const option = document.createElement('option');
+                        option.value = workspace.id;
+                        option.textContent = workspace.name;
+                        option.selected = option.value === currentValue;
+                        select.appendChild(option);
+                    }
+                });
+            });
+        }
+
+        function showCreateWorkspaceModal() {
+            document.getElementById('createWorkspaceModal').style.display = 'block';
+        }
+
+        function editWorkspace(workspaceId) {
+            const workspace = workspaces.find(w => w.id === workspaceId);
+            if (!workspace) return;
+
+            // Fill form with current values
+            document.getElementById('workspaceName').value = workspace.name;
+            document.getElementById('workspaceDescription').value = workspace.description || '';
+            document.getElementById('workspaceEnabled').checked = workspace.enabled;
+
+            // Change form action to update
+            const form = document.getElementById('createWorkspaceForm');
+            form.onsubmit = function(e) {
+                e.preventDefault();
+                updateWorkspace(workspaceId);
+            };
+
+            // Show modal with updated title
+            document.querySelector('#createWorkspaceModal h2').textContent = 'Edit Workspace';
+            document.getElementById('createWorkspaceModal').style.display = 'block';
+        }
+
+        function deleteWorkspace(workspaceId, workspaceName) {
+            if (!confirm(`Are you sure you want to delete workspace "${workspaceName}"?`)) {
+                return;
+            }
+
+            fetch(`${API_BASE_URL}/workspaces/${workspaceId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    loadWorkspaces();
+                    loadServices(); // Refresh services as they may be affected
+                } else {
+                    return response.json().then(err => Promise.reject(err));
+                }
+            })
+            .catch(error => {
+                alert(`Failed to delete workspace: ${error.detail || error.message}`);
+            });
+        }
+
+        function updateWorkspace(workspaceId) {
+            const formData = new FormData(document.getElementById('createWorkspaceForm'));
+            const data = {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                enabled: formData.get('enabled') === 'on'
+            };
+
+            fetch(`${API_BASE_URL}/workspaces/${workspaceId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.ok) {
+                    closeModal('createWorkspaceModal');
+                    loadWorkspaces();
+                    // Reset form
+                    document.getElementById('createWorkspaceForm').reset();
+                    document.getElementById('createWorkspaceForm').onsubmit = createWorkspace;
+                    document.querySelector('#createWorkspaceModal h2').textContent = 'Create Workspace';
+                } else {
+                    return response.json().then(err => Promise.reject(err));
+                }
+            })
+            .catch(error => {
+                alert(`Failed to update workspace: ${error.detail || error.message}`);
+            });
+        }
+
+        // Services
+        function loadServices() {
+            fetch(`${API_BASE_URL}/services`)
+                .then(response => response.json())
+                .then(data => {
+                    services = data;
+                    displayServices();
+                })
+                .catch(error => {
+                    document.getElementById('services-content').innerHTML = `
+                        <div class="error">Failed to load services: ${error.message}</div>
+                    `;
+                });
+        }
+
+        function displayServices() {
+            const content = document.getElementById('services-content');
+            if (services.length === 0) {
+                content.innerHTML = '<p>No services configured.</p>';
+                return;
+            }
+
+            const table = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Workspace</th>
+                            <th>Protocol</th>
+                            <th>Host</th>
+                            <th>Port</th>
+                            <th>Path</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${services.map(service => {
+                            const workspace = workspaces.find(w => w.id === service.workspace_id);
+                            const workspaceName = workspace ? workspace.name : 'Unknown';
+                            return `
+                                <tr>
+                                    <td>${service.name}</td>
+                                    <td><strong>${workspaceName}</strong></td>
+                                    <td>${service.protocol}</td>
+                                    <td>${service.host}</td>
+                                    <td>${service.port}</td>
+                                    <td>${service.path || '/'}</td>
+                                    <td>
+                                        <span class="status-badge ${service.enabled ? 'status-enabled' : 'status-disabled'}">
+                                            ${service.enabled ? 'Enabled' : 'Disabled'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-danger" onclick="deleteService('${service.id}')">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            content.innerHTML = table;
+        }
+
+        function showCreateServiceModal() {
+            document.getElementById('createServiceModal').style.display = 'block';
+        }
+
+        function deleteService(serviceId) {
+            if (confirm('Are you sure you want to delete this service?')) {
+                fetch(`${API_BASE_URL}/services/${serviceId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadServices();
+                    loadDashboard();
+                })
+                .catch(error => {
+                    alert('Failed to delete service: ' + error.message);
+                });
+            }
+        }
+
+        // Dataplanes
+        function loadDataplanes() {
+            fetch(`${API_BASE_URL}/dataplanes`)
+                .then(response => response.json())
+                .then(data => {
+                    dataplanes = data;
+                    displayDataplanes();
+                })
+                .catch(error => {
+                    document.getElementById('dataplanes-content').innerHTML = `
+                        <div class="error">Failed to load dataplanes: ${error.message}</div>
+                    `;
+                });
+        }
+
+        function displayDataplanes() {
+            const content = document.getElementById('dataplanes-content');
+            if (dataplanes.length === 0) {
+                content.innerHTML = '<p>No dataplanes registered.</p>';
+                updateDataplaneCount();
+                return;
+            }
+
+            const table = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Name</th>
+                            <th>ID</th>
+                            <th>Version</th>
+                            <th>Last Seen</th>
+                            <th>Uptime</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${dataplanes.map(dataplane => `
+                            <tr>
+                                <td>
+                                    <span class="status-indicator ${getDataplaneStatusClass(dataplane.status)}"></span>
+                                    <span style="text-transform: capitalize;">${dataplane.status}</span>
+                                </td>
+                                <td>${dataplane.name}</td>
+                                <td><code>${dataplane.id}</code></td>
+                                <td>${dataplane.config_version ? dataplane.config_version.substring(0, 8) : 'Unknown'}</td>
+                                <td class="last-seen">${formatLastSeen(dataplane.last_seen)}</td>
+                                <td>${formatUptime(dataplane.created_at)}</td>
+                                <td>
+                                    <button class="btn btn-small" onclick="viewDataplaneDetails('${dataplane.id}')">Details</button>
+                                    ${dataplane.status === 'offline' ? 
+                                        `<button class="btn btn-danger btn-small" onclick="removeDataplane('${dataplane.id}')">Remove</button>` : 
+                                        ''
+                                    }
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            content.innerHTML = table;
+            updateDataplaneCount();
+        }
+
+        function getDataplaneStatusClass(status) {
+            switch(status) {
+                case 'online':
+                    return 'status-online';
+                case 'offline':
+                    return 'status-offline';
+                default:
+                    return 'status-unknown';
+            }
+        }
+
+        function formatLastSeen(lastSeen) {
+            if (!lastSeen) return 'Never';
+            const now = new Date();
+            // Ensure we're parsing the UTC timestamp correctly
+            const lastSeenDate = new Date(lastSeen.endsWith('Z') ? lastSeen : lastSeen + 'Z');
+            const diffInSeconds = Math.floor((now - lastSeenDate) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return `${diffInSeconds}s ago`;
+            } else if (diffInSeconds < 3600) {
+                return `${Math.floor(diffInSeconds / 60)}m ago`;
+            } else if (diffInSeconds < 86400) {
+                return `${Math.floor(diffInSeconds / 3600)}h ago`;
+            } else {
+                return `${Math.floor(diffInSeconds / 86400)}d ago`;
+            }
+        }
+
+        function formatUptime(createdAt) {
+            if (!createdAt) return 'Unknown';
+            const now = new Date();
+            // Ensure we're parsing the UTC timestamp correctly
+            const createdDate = new Date(createdAt.endsWith('Z') ? createdAt : createdAt + 'Z');
+            const diffInSeconds = Math.floor((now - createdDate) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return `${diffInSeconds}s`;
+            } else if (diffInSeconds < 3600) {
+                return `${Math.floor(diffInSeconds / 60)}m`;
+            } else if (diffInSeconds < 86400) {
+                return `${Math.floor(diffInSeconds / 3600)}h`;
+            } else {
+                return `${Math.floor(diffInSeconds / 86400)}d`;
+            }
+        }
+
+        function viewDataplaneDetails(dataplaneId) {
+            const dataplane = dataplanes.find(dp => dp.id === dataplaneId);
+            if (!dataplane) return;
+
+            const details = `
+                <div class="dataplane-details">
+                    <div class="dataplane-info">
+                        <p><strong>Name:</strong> ${dataplane.name}</p>
+                        <p><strong>ID:</strong> <code>${dataplane.id}</code></p>
+                        <p><strong>IP Address:</strong> ${dataplane.ip}</p>
+                        <p><strong>Port:</strong> ${dataplane.port}</p>
+                        <p><strong>Status:</strong> <span class="status-indicator ${getDataplaneStatusClass(dataplane.status)}"></span> <span style="text-transform: capitalize;">${dataplane.status}</span></p>
+                        <p><strong>Config Version:</strong> <code>${dataplane.config_version}</code></p>
+                        <p><strong>Created:</strong> ${new Date(dataplane.created_at).toLocaleString()}</p>
+                        <p><strong>Last Seen:</strong> ${dataplane.last_seen ? new Date(dataplane.last_seen).toLocaleString() : 'Never'}</p>
+                        <p><strong>Uptime:</strong> ${formatUptime(dataplane.created_at)}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('dataplaneDetailsContent').innerHTML = details;
+            openModal('dataplaneDetailsModal');
+        }
+
+        function removeDataplane(dataplaneId) {
+            if (!confirm('Are you sure you want to remove this dataplane?')) {
+                return;
+            }
+
+            fetch(`${API_BASE_URL}/dataplanes/${dataplaneId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    loadDataplanes();
+                } else {
+                    return response.json().then(err => Promise.reject(err));
+                }
+            })
+            .catch(error => {
+                alert(`Failed to remove dataplane: ${error.detail || error.message}`);
+            });
+        }
+
+        function toggleAutoRefresh() {
+            autoRefreshEnabled = !autoRefreshEnabled;
+            const btn = document.getElementById('autoRefreshBtn');
+            
+            if (autoRefreshEnabled) {
+                btn.textContent = 'Auto-refresh: ON';
+                btn.classList.add('btn-success');
+                autoRefreshInterval = setInterval(() => {
+                    if (document.getElementById('dataplanes').style.display !== 'none') {
+                        loadDataplanes();
+                    }
+                }, AUTO_REFRESH_INTERVAL);
+            } else {
+                btn.textContent = 'Auto-refresh: OFF';
+                btn.classList.remove('btn-success');
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                }
+            }
+        }
+
+        function updateDataplaneCount() {
+            const countElement = document.getElementById('dataplaneCount');
+            if (countElement && dataplanes.length > 0) {
+                const onlineCount = dataplanes.filter(dp => dp.status === 'online').length;
+                const totalCount = dataplanes.length;
+                countElement.textContent = `(${onlineCount}/${totalCount} online)`;
+            }
+        }
+
+        // Routes
+        function loadRoutes() {
+            fetch(`${API_BASE_URL}/routes`)
+                .then(response => response.json())
+                .then(data => {
+                    routes = data;
+                    displayRoutes();
+                })
+                .catch(error => {
+                    document.getElementById('routes-content').innerHTML = `
+                        <div class="error">Failed to load routes: ${error.message}</div>
+                    `;
+                });
+        }
+
+        function displayRoutes() {
+            const content = document.getElementById('routes-content');
+            if (routes.length === 0) {
+                content.innerHTML = '<p>No routes configured.</p>';
+                return;
+            }
+
+            const table = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Service</th>
+                            <th>Paths</th>
+                            <th>Hosts</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${routes.map(route => {
+                            const service = services.find(s => s.id === route.service_id);
+                            return `
+                                <tr>
+                                    <td>${route.name}</td>
+                                    <td>${service ? service.name : 'Unknown'}</td>
+                                    <td>${route.paths.join(', ')}</td>
+                                    <td>${route.hosts.join(', ')}</td>
+                                    <td>
+                                        <span class="status-badge ${route.enabled ? 'status-enabled' : 'status-disabled'}">
+                                            ${route.enabled ? 'Enabled' : 'Disabled'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-danger" onclick="deleteRoute('${route.id}')">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            content.innerHTML = table;
+        }
+
+        function showCreateRouteModal() {
+            // Populate service options
+            const serviceSelect = document.getElementById('routeService');
+            serviceSelect.innerHTML = '<option value="">Select a service</option>';
+            services.forEach(service => {
+                serviceSelect.innerHTML += `<option value="${service.id}">${service.name}</option>`;
+            });
+            
+            document.getElementById('createRouteModal').style.display = 'block';
+        }
+
+        function deleteRoute(routeId) {
+            if (confirm('Are you sure you want to delete this route?')) {
+                fetch(`${API_BASE_URL}/routes/${routeId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadRoutes();
+                    loadDashboard();
+                })
+                .catch(error => {
+                    alert('Failed to delete route: ' + error.message);
+                });
+            }
+        }
+
+        // Plugins
+        function loadPlugins() {
+            fetch(`${API_BASE_URL}/plugins`)
+                .then(response => response.json())
+                .then(data => {
+                    plugins = data;
+                    displayPlugins();
+                })
+                .catch(error => {
+                    document.getElementById('plugins-content').innerHTML = `
+                        <div class="error">Failed to load plugins: ${error.message}</div>
+                    `;
+                });
+        }
+
+        function displayPlugins() {
+            const content = document.getElementById('plugins-content');
+            if (plugins.length === 0) {
+                content.innerHTML = '<p>No plugins configured.</p>';
+                return;
+            }
+
+            const table = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Service</th>
+                            <th>Route</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${plugins.map(plugin => {
+                            const service = services.find(s => s.id === plugin.service_id);
+                            const route = routes.find(r => r.id === plugin.route_id);
+                            return `
+                                <tr>
+                                    <td>${plugin.name}</td>
+                                    <td>${plugin.name}</td>
+                                    <td>${service ? service.name : 'Global'}</td>
+                                    <td>${route ? route.name : 'Any'}</td>
+                                    <td>
+                                        <span class="status-badge ${plugin.enabled ? 'status-enabled' : 'status-disabled'}">
+                                            ${plugin.enabled ? 'Enabled' : 'Disabled'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-danger" onclick="deletePlugin('${plugin.id}')">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            content.innerHTML = table;
+        }
+
+        // Configuration
+        function loadConfiguration() {
+            const content = document.getElementById('config-content');
+            content.innerHTML = '<div class="loading">Loading configuration...</div>';
+            
+            fetch(`${API_BASE_URL}/config/sync`)
+                .then(response => response.json())
+                .then(data => {
+                    renderConfiguration(data);
+                })
+                .catch(error => {
+                    content.innerHTML = '<div class="error">Failed to load configuration</div>';
+                });
+        }
+
+        function renderConfiguration(config) {
+            const content = document.getElementById('config-content');
+            
+            const renderConfigItems = (items, type) => {
+                return items.map(item => {
+                    let displayText = '';
+                    let details = '';
+                    
+                    switch(type) {
+                        case 'service':
+                            displayText = item.name;
+                            details = `${item.protocol}://${item.host}:${item.port}${item.path || ''}`;
+                            break;
+                        case 'route':
+                            displayText = item.name;
+                            details = `Paths: ${item.paths.join(', ')} | Methods: ${item.methods.join(', ')}`;
+                            break;
+                        case 'plugin':
+                            displayText = item.name;
+                            details = `Priority: ${item.priority} | Enabled: ${item.enabled}`;
+                            break;
+                        case 'consumer':
+                            displayText = item.username || item.id;
+                            details = `ID: ${item.id}`;
+                            break;
+                    }
+                    
+                    return `
+                        <div class="config-item" onclick="editConfigItem('${type}', '${item.id}', '${item.name || item.username || item.id}')">
+                            <div class="config-item-header">
+                                <div class="config-item-name">${displayText}</div>
+                                <div class="config-item-type">${type}</div>
+                            </div>
+                            <div class="config-item-details">${details}</div>
+                        </div>
+                    `;
+                }).join('');
+            };
+            
+            const html = `
+                <div class="config-container">
+                    <!-- Statistics -->
+                    <div class="config-stats">
+                        <div class="config-stat">
+                            <div class="config-stat-number">${config.services.length}</div>
+                            <div class="config-stat-label">Services</div>
+                        </div>
+                        <div class="config-stat">
+                            <div class="config-stat-number">${config.routes.length}</div>
+                            <div class="config-stat-label">Routes</div>
+                        </div>
+                        <div class="config-stat">
+                            <div class="config-stat-number">${config.plugins.length}</div>
+                            <div class="config-stat-label">Plugins</div>
+                        </div>
+                        <div class="config-stat">
+                            <div class="config-stat-number">${config.consumers.length}</div>
+                            <div class="config-stat-label">Consumers</div>
+                        </div>
+                    </div>
+
+                    <!-- Configuration Info -->
+                    <div class="config-section">
+                        <h3>📊 Configuration Overview</h3>
+                        <p><strong>Version:</strong> ${config.version}</p>
+                        <p><strong>Last Updated:</strong> ${new Date(config.timestamp).toLocaleString()}</p>
+                    </div>
+
+                    <!-- Services -->
+                    <div class="config-section">
+                        <h3>🚀 Services (${config.services.length})</h3>
+                        ${config.services.length > 0 ? renderConfigItems(config.services, 'service') : '<p>No services configured</p>'}
+                    </div>
+
+                    <!-- Routes -->
+                    <div class="config-section">
+                        <h3>🛣️ Routes (${config.routes.length})</h3>
+                        ${config.routes.length > 0 ? renderConfigItems(config.routes, 'route') : '<p>No routes configured</p>'}
+                    </div>
+
+                    <!-- Plugins -->
+                    <div class="config-section">
+                        <h3>🔌 Plugins (${config.plugins.length})</h3>
+                        ${config.plugins.length > 0 ? renderConfigItems(config.plugins, 'plugin') : '<p>No plugins configured</p>'}
+                    </div>
+
+                    <!-- Consumers -->
+                    <div class="config-section">
+                        <h3>👥 Consumers (${config.consumers.length})</h3>
+                        ${config.consumers.length > 0 ? renderConfigItems(config.consumers, 'consumer') : '<p>No consumers configured</p>'}
+                    </div>
+                </div>
+            `;
+            
+            content.innerHTML = html;
+        }
+
+        function downloadConfiguration() {
+            fetch(`${API_BASE_URL}/config/sync`)
+                .then(response => response.json())
+                .then(data => {
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `pygateway-config-${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    alert('Failed to download configuration');
+                });
+        }
+
+        // Edit functionality
+        let currentEditItem = null;
+
+        function editConfigItem(type, id, name) {
+            currentEditItem = { type, id, name };
+            
+            // Fetch current item data
+            let endpoint = '';
+            switch(type) {
+                case 'service':
+                    endpoint = `services/${id}`;
+                    break;
+                case 'route':
+                    endpoint = `routes/${id}`;
+                    break;
+                case 'plugin':
+                    endpoint = `plugins/${id}`;
+                    break;
+                case 'consumer':
+                    endpoint = `consumers/${id}`;
+                    break;
+            }
+            
+            fetch(`${API_BASE_URL}/${endpoint}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('editModalTitle').textContent = `Edit ${type}: ${name}`;
+                    document.getElementById('editConfigTextarea').value = JSON.stringify(data, null, 2);
+                    document.getElementById('editConfigModal').style.display = 'block';
+                })
+                .catch(error => {
+                    alert(`Failed to load ${type} configuration`);
+                });
+        }
+
+        function closeEditModal() {
+            document.getElementById('editConfigModal').style.display = 'none';
+            currentEditItem = null;
+        }
+
+        function saveConfiguration() {
+            if (!currentEditItem) return;
+            
+            const textarea = document.getElementById('editConfigTextarea');
+            let config;
+            
+            try {
+                config = JSON.parse(textarea.value);
+            } catch (error) {
+                alert('Invalid JSON format. Please check your configuration.');
+                return;
+            }
+            
+            // Determine API endpoint and method
+            let endpoint = '';
+            switch(currentEditItem.type) {
+                case 'service':
+                    endpoint = `services/${currentEditItem.id}`;
+                    break;
+                case 'route':
+                    endpoint = `routes/${currentEditItem.id}`;
+                    break;
+                case 'plugin':
+                    endpoint = `plugins/${currentEditItem.id}`;
+                    break;
+                case 'consumer':
+                    endpoint = `consumers/${currentEditItem.id}`;
+                    break;
+            }
+            
+            fetch(`${API_BASE_URL}/${endpoint}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(config)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert(`${currentEditItem.type} updated successfully!`);
+                    closeEditModal();
+                    loadConfiguration(); // Refresh the configuration view
+                } else {
+                    throw new Error(`Failed to update ${currentEditItem.type}`);
+                }
+            })
+            .catch(error => {
+                alert(`Error updating ${currentEditItem.type}: ${error.message}`);
+            });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('editConfigModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        }
+
+        function loadAvailablePlugins() {
+            fetch(`${API_BASE_URL}/plugins/available`)
+                .then(response => response.json())
+                .then(data => {
+                    availablePlugins = data;
+                })
+                .catch(error => {
+                    console.error('Failed to load available plugins:', error);
+                });
+        }
+
+        function showCreatePluginModal() {
+            // Populate plugin options
+            const pluginSelect = document.getElementById('pluginName');
+            pluginSelect.innerHTML = '<option value="">Select a plugin</option>';
+            availablePlugins.forEach(plugin => {
+                pluginSelect.innerHTML += `<option value="${plugin.name}">${plugin.name}</option>`;
+            });
+            
+            // Populate service options
+            const serviceSelect = document.getElementById('pluginService');
+            serviceSelect.innerHTML = '<option value="">Global plugin</option>';
+            services.forEach(service => {
+                serviceSelect.innerHTML += `<option value="${service.id}">${service.name}</option>`;
+            });
+            
+            // Populate route options
+            const routeSelect = document.getElementById('pluginRoute');
+            routeSelect.innerHTML = '<option value="">Any route</option>';
+            routes.forEach(route => {
+                routeSelect.innerHTML += `<option value="${route.id}">${route.name}</option>`;
+            });
+            
+            document.getElementById('createPluginModal').style.display = 'block';
+        }
+
+        // Plugin Schema Functions
+        function loadPluginSchema() {
+            const pluginName = document.getElementById('pluginName').value;
+            const configSection = document.getElementById('pluginConfigSection');
+            const configFields = document.getElementById('pluginConfigFields');
+            
+            if (!pluginName) {
+                configSection.style.display = 'none';
+                return;
+            }
+            
+            // Show loading state
+            configFields.innerHTML = '<div class="loading">Loading plugin configuration...</div>';
+            configSection.style.display = 'block';
+            
+            // Fetch plugin schema
+            fetch(`${API_BASE_URL}/plugins/schema/${pluginName}`)
+                .then(response => response.json())
+                .then(schema => {
+                    generatePluginForm(schema);
+                })
+                .catch(error => {
+                    console.error('Failed to load plugin schema:', error);
+                    configFields.innerHTML = '<div class="error">Failed to load plugin configuration</div>';
+                });
+        }
+
+        function generatePluginForm(pluginSchema) {
+            const configFields = document.getElementById('pluginConfigFields');
+            const fieldCounter = document.getElementById('fieldCounter');
+            const schema = pluginSchema.schema;
+            
+            if (!schema.properties) {
+                configFields.innerHTML = '<p>No configuration options available for this plugin.</p>';
+                fieldCounter.textContent = '';
+                return;
+            }
+            
+            const propertyCount = Object.keys(schema.properties).length;
+            fieldCounter.textContent = `(${propertyCount} field${propertyCount !== 1 ? 's' : ''})`;
+            
+            let formHTML = '';
+            
+            // Add plugin description
+            if (pluginSchema.description) {
+                formHTML += `<div class="config-field-group" style="background-color: #e7f3ff; border-color: #b3d7ff;"><p style="color: #0056b3; margin: 0; font-style: italic;"><strong>📋 Description:</strong> ${pluginSchema.description}</p></div>`;
+            }
+            
+            // Generate fields for each property
+            Object.entries(schema.properties).forEach(([key, prop]) => {
+                formHTML += generateField(key, prop);
+            });
+            
+            configFields.innerHTML = formHTML;
+        }
+
+        function generateField(key, property) {
+            const fieldId = `plugin_${key}`;
+            const defaultValue = property.default || '';
+            const description = property.description || '';
+            const isRequired = property.required || false;
+            
+            let fieldHTML = `<div class="config-field-group">`;
+            fieldHTML += `<label for="${fieldId}">
+                ${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                ${isRequired ? '<span style="color: #dc3545;">*</span>' : ''}
+                ${property.type ? `<span style="font-size: 0.8em; color: #6c757d; font-weight: normal;">(${property.type})</span>` : ''}
+            </label>`;
+            
+            if (property.type === 'boolean') {
+                fieldHTML += `<select id="${fieldId}" name="${key}" class="plugin-config-field" ${isRequired ? 'required' : ''}>`;
+                fieldHTML += `<option value="true" ${defaultValue === true ? 'selected' : ''}>Yes</option>`;
+                fieldHTML += `<option value="false" ${defaultValue === false ? 'selected' : ''}>No</option>`;
+                fieldHTML += `</select>`;
+            } else if (property.enum) {
+                fieldHTML += `<select id="${fieldId}" name="${key}" class="plugin-config-field" ${isRequired ? 'required' : ''}>`;
+                if (!isRequired) {
+                    fieldHTML += `<option value="">-- Select an option --</option>`;
+                }
+                property.enum.forEach(option => {
+                    fieldHTML += `<option value="${option}" ${defaultValue === option ? 'selected' : ''}>${option}</option>`;
+                });
+                fieldHTML += `</select>`;
+            } else if (property.type === 'array') {
+                // Handle arrays with a textarea for JSON input
+                const arrayValue = Array.isArray(defaultValue) ? JSON.stringify(defaultValue) : '[]';
+                fieldHTML += `<textarea id="${fieldId}" name="${key}" class="plugin-config-field" rows="3" placeholder="Enter JSON array, e.g., [&quot;item1&quot;, &quot;item2&quot;]" ${isRequired ? 'required' : ''}>${arrayValue}</textarea>`;
+                fieldHTML += `<small style="color: #28a745; display: block; margin-top: 0.25rem;">💡 Tip: Use JSON format for arrays</small>`;
+            } else if (property.type === 'integer' || property.type === 'number') {
+                const minAttr = property.minimum !== undefined ? `min="${property.minimum}"` : '';
+                const maxAttr = property.maximum !== undefined ? `max="${property.maximum}"` : '';
+                fieldHTML += `<input type="number" id="${fieldId}" name="${key}" value="${defaultValue}" class="plugin-config-field" ${property.type === 'integer' ? 'step="1"' : ''} ${minAttr} ${maxAttr} ${isRequired ? 'required' : ''}/>`;
+            } else {
+                const placeholder = property.example ? `placeholder="${property.example}"` : '';
+                fieldHTML += `<input type="text" id="${fieldId}" name="${key}" value="${defaultValue}" class="plugin-config-field" ${placeholder} ${isRequired ? 'required' : ''}/>`;
+            }
+            
+            if (description) {
+                fieldHTML += `<div class="config-field-description">📄 ${description}</div>`;
+            }
+            
+            fieldHTML += `</div>`;
+            return fieldHTML;
+        }
+
+        function toggleRawJsonMode() {
+            const useRawJson = document.getElementById('useRawJson').checked;
+            const rawJsonSection = document.getElementById('rawJsonSection');
+            const dynamicFields = document.getElementById('pluginConfigFields');
+            
+            if (useRawJson) {
+                rawJsonSection.style.display = 'block';
+                dynamicFields.style.display = 'none';
+                
+                // Pre-populate JSON from form fields
+                const config = collectPluginConfig();
+                document.getElementById('pluginConfig').value = JSON.stringify(config, null, 2);
+            } else {
+                rawJsonSection.style.display = 'none';
+                dynamicFields.style.display = 'block';
+                
+                // Try to populate form from JSON
+                try {
+                    const config = JSON.parse(document.getElementById('pluginConfig').value);
+                    populatePluginForm(config);
+                } catch (e) {
+                    // Ignore parse errors
+                }
+            }
+        }
+
+        function collectPluginConfig() {
+            const config = {};
+            const fields = document.querySelectorAll('.plugin-config-field');
+            
+            fields.forEach(field => {
+                const key = field.name;
+                let value = field.value;
+                
+                // Convert types based on field characteristics
+                if (field.tagName.toLowerCase() === 'textarea') {
+                    // Handle arrays in textareas
+                    try {
+                        value = JSON.parse(value);
+                    } catch (e) {
+                        // If JSON parsing fails, treat as string
+                        console.warn(`Failed to parse JSON for field ${key}:`, e);
+                    }
+                } else if (field.type === 'number') {
+                    value = field.step && field.step !== 'any' ? parseInt(value) : parseFloat(value);
+                } else if (value === 'true') {
+                    value = true;
+                } else if (value === 'false') {
+                    value = false;
+                }
+                
+                if (value !== '' && value !== null) {
+                    config[key] = value;
+                }
+            });
+            
+            return config;
+        }
+
+        function populatePluginForm(config) {
+            Object.entries(config).forEach(([key, value]) => {
+                const field = document.querySelector(`[name="${key}"]`);
+                if (field) {
+                    field.value = value;
+                }
+            });
+        }
+
+        function deletePlugin(pluginId) {
+            if (confirm('Are you sure you want to delete this plugin?')) {
+                fetch(`${API_BASE_URL}/plugins/${pluginId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadPlugins();
+                    loadDashboard();
+                })
+                .catch(error => {
+                    alert('Failed to delete plugin: ' + error.message);
+                });
+            }
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Form submissions
+        document.getElementById('createWorkspaceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                enabled: formData.get('enabled') === 'on'
+            };
+            
+            fetch(`${API_BASE_URL}/workspaces`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadWorkspaces();
+                closeModal('createWorkspaceModal');
+                this.reset();
+            })
+            .catch(error => {
+                alert(`Failed to create workspace: ${error.detail || error.message}`);
+            });
+        });
+
+        document.getElementById('createServiceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            data.port = parseInt(data.port);
+            
+            fetch(`${API_BASE_URL}/services`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadServices();
+                loadDashboard();
+                closeModal('createServiceModal');
+                this.reset();
+            })
+            .catch(error => {
+                alert('Failed to create service: ' + error.message);
+            });
+        });
+
+        document.getElementById('createRouteForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {};
+            
+            // Handle regular form fields
+            for (let [key, value] of formData.entries()) {
+                if (key === 'protocols' || key === 'methods') {
+                    // Skip - we'll handle these arrays separately
+                    continue;
+                }
+                data[key] = value;
+            }
+            
+            // Handle checkbox arrays for protocols and methods
+            data.protocols = Array.from(this.querySelectorAll('input[name="protocols"]:checked')).map(cb => cb.value);
+            data.methods = Array.from(this.querySelectorAll('input[name="methods"]:checked')).map(cb => cb.value);
+            
+            // Handle boolean checkboxes
+            data.strip_path = this.querySelector('#routeStripPath').checked;
+            data.preserve_host = this.querySelector('#routePreserveHost').checked;
+            data.enabled = this.querySelector('#routeEnabled').checked;
+            
+            // Handle numeric fields
+            data.regex_priority = parseInt(data.regex_priority) || 0;
+            
+            // Parse comma-separated values for paths and hosts
+            if (data.paths) {
+                data.paths = data.paths.split(',').map(p => p.trim()).filter(p => p);
+            } else {
+                data.paths = [];
+            }
+            if (data.hosts) {
+                data.hosts = data.hosts.split(',').map(h => h.trim()).filter(h => h);
+            } else {
+                data.hosts = [];
+            }
+            
+            // Ensure required arrays have defaults
+            if (data.protocols.length === 0) {
+                data.protocols = ['http', 'https'];
+            }
+            if (data.methods.length === 0) {
+                data.methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
+            }
+            
+            console.log('Creating route with data:', data);
+            
+            fetch(`${API_BASE_URL}/routes`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP ${response.status}: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                loadRoutes();
+                loadDashboard();
+                closeModal('createRouteModal');
+                this.reset();
+                // Reset checkboxes to default state
+                this.querySelectorAll('input[name="protocols"]').forEach(cb => {
+                    cb.checked = (cb.value === 'http' || cb.value === 'https');
+                });
+                this.querySelectorAll('input[name="methods"]').forEach(cb => cb.checked = true);
+                this.querySelector('#routeStripPath').checked = true;
+                this.querySelector('#routePreserveHost').checked = false;
+                this.querySelector('#routeEnabled').checked = true;
+            })
+            .catch(error => {
+                alert('Failed to create route: ' + error.message);
+                console.error('Route creation error:', error);
+            });
+        });
+
+        document.getElementById('createPluginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // Get plugin configuration
+            const useRawJson = document.getElementById('useRawJson').checked;
+            
+            if (useRawJson) {
+                // Parse JSON configuration from textarea
+                if (data.config) {
+                    try {
+                        data.config = JSON.parse(data.config);
+                    } catch (e) {
+                        alert('Invalid JSON configuration');
+                        return;
+                    }
+                } else {
+                    data.config = {};
+                }
+            } else {
+                // Collect configuration from dynamic form fields
+                data.config = collectPluginConfig();
+            }
+            
+            // Remove empty values
+            if (!data.service_id) delete data.service_id;
+            if (!data.route_id) delete data.route_id;
+            
+            fetch(`${API_BASE_URL}/plugins`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadPlugins();
+                loadDashboard();
+                closeModal('createPluginModal');
+                this.reset();
+            })
+            .catch(error => {
+                alert('Failed to create plugin: ' + error.message);
+            });
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

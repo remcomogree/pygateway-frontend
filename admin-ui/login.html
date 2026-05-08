@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyGateway Admin - Login</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+        .error {
+            background: #fee;
+            color: #c53030;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border: 1px solid #feb2b2;
+        }
+        .info {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border: 1px solid #81e6d9;
+        }
+        .loading {
+            display: none;
+            color: #666;
+            margin-top: 1rem;
+        }
+        .sso-info {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .sso-button {
+            background: #2d3748;
+            margin-top: 1rem;
+        }
+        .sso-button:hover {
+            background: #1a202c;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">PyGateway Admin</div>
+        <div class="subtitle">Secure Administration Portal</div>
+        
+        <div id="errorMessage" class="error" style="display: none;"></div>
+        <div id="infoMessage" class="info" style="display: none;"></div>
+        
+        <!-- Superadmin Login Form -->
+        <div id="superadminSection">
+            <form id="superadminForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Superadmin username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Superadmin password" required>
+                </div>
+                <button type="submit" class="btn" id="superadminBtn">Login as Superadmin</button>
+            </form>
+        </div>
+        
+        <!-- SSO Section (shown if SSO is enabled) -->
+        <div id="ssoSection" style="display: none;">
+            <div style="margin: 1.5rem 0; color: #666; text-align: center;">
+                <div style="border-top: 1px solid #e2e8f0; position: relative; margin: 1rem 0;">
+                    <span style="background: white; padding: 0 1rem; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);">or</span>
+                </div>
+            </div>
+            
+            <!-- Entra ID SSO Login (shown if configured) -->
+            <div id="entraLoginSection" style="display: none;">
+                <button type="button" class="btn sso-button" id="entraLoginBtn" onclick="loginWithEntraID()">
+                    🏢 Sign in with Microsoft Entra ID
+                </button>
+                <div style="margin: 1rem 0; color: #666;">or</div>
+            </div>
+            
+            <!-- JWT Token Login Form -->
+            <form id="jwtForm">
+                <div class="form-group">
+                    <label for="jwtToken">JWT Token</label>
+                    <input type="password" id="jwtToken" name="jwtToken" placeholder="Paste your JWT token here">
+                </div>
+                <button type="submit" class="btn sso-button" id="jwtBtn">Login with JWT</button>
+            </form>
+        </div>
+        
+        <div class="loading" id="loadingIndicator">
+            Authenticating...
+        </div>
+        
+        <!-- Information -->
+        <div class="sso-info">
+            <p><small>Superadmin access is always available for system administration.</small></p>
+            <p id="ssoInfo" style="display: none;"><small>SSO authentication is also enabled for this system.</small></p>
+            <button type="button" class="btn sso-button" onclick="showTokenInfo()">Authentication Help</button>
+        </div>
+    </div>
+
+    <script src="js/security.js"></script>
+    <script>
+        // Authentication state
+        let SSO_ENABLED = false;
+        let ENTRA_CONFIG = null;
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Clear any redirect flags
+            sessionStorage.removeItem('sso_redirect_attempted');
+            
+            // Check authentication status
+            await checkAuthStatus();
+            
+            // Setup form handlers
+            setupFormHandlers();
+            
+            // Check for tokens in URL
+            checkForTokensInURL();
+        });
+        
+        // Check current authentication status
+        async function checkAuthStatus() {
+            try {
+                // Initialize security context first
+                await adminSecurity.initialize();
+                
+                const response = await adminSecurity.get('/api/auth/status');
+                if (response.ok) {
+                    const status = await response.json();
+                    
+                    // If already authenticated, redirect to main app
+                    if (status.authenticated) {
+                        showInfo('Already authenticated, redirecting...');
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1000);
+                        return;
+                    }
+                    
+                    // Configure UI based on status
+                    SSO_ENABLED = status.sso_enabled;
+                    if (SSO_ENABLED) {
+                        document.getElementById('ssoSection').style.display = 'block';
+                        document.getElementById('ssoInfo').style.display = 'block';
+                        
+                        // Fetch SSO configuration
+                        await fetchSSOConfig();
+                    }
+                } else {
+                    console.error('Failed to check auth status');
+                }
+            } catch (error) {
+                console.error('Error checking auth status:', error);
+            }
+        }
+        
+        // Fetch SSO configuration
+        async function fetchSSOConfig() {
+            try {
+                const response = await fetch('/api/sso-config');
+                if (response.ok) {
+                    const config = await response.json();
+                    ENTRA_CONFIG = config.entraConfig || null;
+                    
+                    // Show Entra ID login option if configured
+                    if (ENTRA_CONFIG) {
+                        document.getElementById('entraLoginSection').style.display = 'block';
+                        console.log('Entra ID SSO configured for tenant:', ENTRA_CONFIG.tenantId);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching SSO config:', error);
+            }
+        }
+        
+        // Setup form event handlers
+        function setupFormHandlers() {
+            // Superadmin form
+            document.getElementById('superadminForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await handleSuperadminLogin();
+            });
+            
+            // JWT form
+            document.getElementById('jwtForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await handleJWTLogin();
+            });
+        }
+        
+        // Handle superadmin login
+        async function handleSuperadminLogin() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const btn = document.getElementById('superadminBtn');
+            const loading = document.getElementById('loadingIndicator');
+            
+            if (!username || !password) {
+                showError('Please enter both username and password');
+                return;
+            }
+            
+            // Show loading state
+            btn.disabled = true;
+            loading.style.display = 'block';
+            hideMessages();
+            
+            try {
+                const response = await adminSecurity.post('/api/superadmin/login', {
+                    username: username,
+                    password: password
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showInfo('Superadmin login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else if (adminSecurity.isSecurityError(response)) {
+                    adminSecurity.handleSecurityError(response);
+                } else {
+                    const error = await response.json();
+                    showError(error.detail || 'Invalid superadmin credentials');
+                }
+            } catch (error) {
+                console.error('Superadmin login error:', error);
+                showError('Login failed. Please try again.');
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+        
+        // Handle JWT login
+        async function handleJWTLogin() {
+            const token = document.getElementById('jwtToken').value.trim();
+            const btn = document.getElementById('jwtBtn');
+            const loading = document.getElementById('loadingIndicator');
+            
+            if (!token) {
+                showError('Please enter a JWT token');
+                return;
+            }
+            
+            // Show loading state
+            btn.disabled = true;
+            loading.style.display = 'block';
+            hideMessages();
+            
+            try {
+                const response = await fetch('/api/sso-validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    showInfo('JWT login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    const error = await response.json();
+                    showError(error.detail || 'Invalid JWT token or insufficient permissions');
+                }
+            } catch (error) {
+                console.error('JWT login error:', error);
+                showError('JWT validation failed. Please check your token.');
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+        
+        // Entra ID authentication
+        function loginWithEntraID() {
+            if (!ENTRA_CONFIG) {
+                showError('Entra ID is not configured');
+                return;
+            }
+            
+            // Construct Microsoft login URL
+            const authUrl = new URL('https://login.microsoftonline.com/' + ENTRA_CONFIG.tenantId + '/oauth2/v2.0/authorize');
+            const params = {
+                client_id: ENTRA_CONFIG.clientId,
+                response_type: 'id_token',
+                response_mode: 'fragment',
+                scope: ENTRA_CONFIG.scopes.join(' '),
+                redirect_uri: ENTRA_CONFIG.redirectUri,
+                nonce: generateNonce(),
+                state: 'login'
+            };
+            
+            Object.keys(params).forEach(key => {
+                authUrl.searchParams.append(key, params[key]);
+            });
+            
+            console.log('Redirecting to Entra ID login:', authUrl.toString());
+            window.location.href = authUrl.toString();
+        }
+        
+        // Generate a random nonce for security
+        function generateNonce() {
+            const array = new Uint32Array(4);
+            crypto.getRandomValues(array);
+            return Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('');
+        }
+        
+        // Check for tokens in URL
+        function checkForTokensInURL() {
+            // Check for Entra ID token in URL fragment
+            const fragment = window.location.hash.substring(1);
+            const params = new URLSearchParams(fragment);
+            const idToken = params.get('id_token');
+            
+            if (idToken) {
+                console.log('Received Entra ID token');
+                // Clear the fragment from URL
+                window.location.hash = '';
+                
+                // Auto-fill JWT field and trigger login
+                document.getElementById('jwtToken').value = idToken;
+                if (SSO_ENABLED) {
+                    handleJWTLogin();
+                }
+                return;
+            }
+            
+            // Check for token in URL query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlToken = urlParams.get('token');
+            if (urlToken) {
+                document.getElementById('jwtToken').value = urlToken;
+                // Clear the token from URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+        
+        // Utility functions
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('infoMessage').style.display = 'none';
+        }
+        
+        function showInfo(message) {
+            const infoDiv = document.getElementById('infoMessage');
+            infoDiv.textContent = message;
+            infoDiv.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('infoMessage').style.display = 'none';
+        }
+        
+        function showTokenInfo() {
+            alert(`Authentication Methods:
+
+SUPERADMIN (Always Available):
+- Username/password authentication
+- Default credentials: admin/admin123
+- Always works even when SSO is enabled
+- Has full system access
+
+SSO/JWT TOKEN ${SSO_ENABLED ? '(Enabled)' : '(Disabled)'}:
+- Valid JWT format required
+- Must contain appropriate role claims
+- Can be obtained from external identity providers
+${ENTRA_CONFIG ? '- Microsoft Entra ID integration available' : ''}
+
+For emergency access, always use superadmin credentials.`);
+        }
+    </script>
+    <script src="js/cross-app-sso.js"></script>
+</body>
+</html>

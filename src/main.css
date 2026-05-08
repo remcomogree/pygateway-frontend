@@ -1,0 +1,66 @@
+/* PyGateway Admin UI - Tabler Dark Theme */
+@import '@tabler/core/dist/css/tabler.min.css';
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Minimal overrides */
+:root {
+  --tblr-primary: #0054a6;
+  --tblr-primary-rgb: 0, 84, 166;
+}
+
+/* Ensure page fills viewport */
+body {
+  min-height: 100vh;
+}
+
+/* ── Pill buttons globally ─────────────────────────── */
+.btn {
+  border-radius: 10rem;
+}
+.btn-sm {
+  border-radius: 10rem;
+}
+.btn-lg {
+  border-radius: 10rem;
+}
+
+/* ── Rounded form controls to match pill style ─────── */
+.form-control,
+.form-select {
+  border-radius: var(--tblr-border-radius);
+}
+.form-control:focus,
+.form-select:focus {
+  box-shadow: 0 0 0 0.25rem rgba(var(--tblr-primary-rgb), 0.25);
+}
+
+/* Status indicators */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.status-dot-online { background: var(--tblr-success); }
+.status-dot-offline { background: var(--tblr-danger); }
+
+/* Sidebar active link highlight */
+.navbar-vertical .nav-link.active {
+  font-weight: 600;
+}
+
+/* Fix modal z-index for portals */
+.modal-portal {
+  position: fixed;
+  z-index: 1050;
+}
+
+/* Scrollable card body for long lists */
+.card-body-scrollable {
+  max-height: 400px;
+  overflow-y: auto;
+}

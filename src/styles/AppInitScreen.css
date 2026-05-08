@@ -1,0 +1,302 @@
+/* AppInitScreen - Modern Loading Screen */
+
+.app-init-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  overflow: hidden;
+}
+
+.init-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.init-content {
+  background: white;
+  border-radius: 12px;
+  padding: 60px 40px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.init-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 30px 0;
+  letter-spacing: -0.5px;
+}
+
+.init-progress {
+  margin: 40px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.progress-spinner {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.spinner-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80px;
+  height: 80px;
+  transform: translate(-50%, -50%);
+  border: 4px solid #f0f0f0;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.spinner-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  color: #667eea;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.init-status {
+  margin: 30px 0;
+}
+
+.status-message {
+  font-size: 16px;
+  color: #555;
+  margin: 0 0 20px 0;
+  font-weight: 500;
+}
+
+.status-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.status-indicator {
+  display: inline-block;
+  font-size: 16px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Error State */
+.init-error {
+  background: #fff5f5;
+  border: 2px solid #dc2626;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.error-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #dc2626;
+  margin: 0 0 8px 0;
+}
+
+.error-message {
+  font-size: 14px;
+  color: #991b1b;
+  margin: 0 0 15px 0;
+  line-height: 1.5;
+}
+
+.error-retry-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.error-retry-btn:hover {
+  background: #b91c1c;
+}
+
+.error-retry-btn:active {
+  transform: scale(0.98);
+}
+
+/* Timeout Warning */
+.timeout-warning {
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 20px 0;
+}
+
+.timeout-warning p {
+  font-size: 13px;
+  color: #92400e;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.timeout-hint {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 5px !important;
+}
+
+/* Loading Hints */
+.init-hints {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.hint-text {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .init-content {
+    padding: 40px 25px;
+  }
+
+  .init-title {
+    font-size: 22px;
+  }
+
+  .progress-spinner {
+    width: 60px;
+    height: 60px;
+  }
+
+  .spinner-ring {
+    width: 60px;
+    height: 60px;
+    border-width: 3px;
+  }
+
+  .status-message {
+    font-size: 14px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .init-content {
+    background: #1f2937;
+    color: #f3f4f6;
+  }
+
+  .init-title {
+    color: #f3f4f6;
+  }
+
+  .status-message {
+    color: #d1d5db;
+  }
+
+  .status-item {
+    color: #9ca3af;
+  }
+
+  .hint-text {
+    color: #6b7280;
+  }
+
+  .init-hints {
+    border-top-color: #374151;
+  }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  .spinner-ring,
+  .status-indicator {
+    animation: none;
+    opacity: 0.8;
+  }
+
+  .init-content {
+    animation: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: more) {
+  .app-init-screen {
+    background: #333;
+  }
+
+  .init-content {
+    border: 3px solid #000;
+  }
+
+  .spinner-ring {
+    border-width: 5px;
+  }
+
+  .error-retry-btn {
+    border: 2px solid currentColor;
+  }
+}

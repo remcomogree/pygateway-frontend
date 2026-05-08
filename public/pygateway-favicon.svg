@@ -1,0 +1,41 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle for pig head -->
+  <circle cx="16" cy="16" r="14" fill="#B19CD9" stroke="#6B5B95" stroke-width="1"/>
+  
+  <!-- Pig ears -->
+  <path d="M 8 10 Q 6 6 10 8 Q 12 6 10 10 Z" fill="#B19CD9" stroke="#6B5B95" stroke-width="1"/>
+  <path d="M 22 10 Q 20 6 24 8 Q 26 6 24 10 Z" fill="#B19CD9" stroke="#6B5B95" stroke-width="1"/>
+  
+  <!-- Inner ears -->
+  <ellipse cx="10" cy="9" rx="1.5" ry="2" fill="#D8BFD8"/>
+  <ellipse cx="22" cy="9" rx="1.5" ry="2" fill="#D8BFD8"/>
+  
+  <!-- Eyes -->
+  <circle cx="12" cy="14" r="1.5" fill="#2C3E50"/>
+  <circle cx="20" cy="14" r="1.5" fill="#2C3E50"/>
+  
+  <!-- Snout -->
+  <ellipse cx="16" cy="20" rx="3" ry="2.5" fill="#9370DB" stroke="#6B5B95" stroke-width="1"/>
+  
+  <!-- Nostrils -->
+  <ellipse cx="15" cy="20" rx="0.5" ry="1" fill="#2C3E50"/>
+  <ellipse cx="17" cy="20" rx="0.5" ry="1" fill="#2C3E50"/>
+  
+  <!-- Connection nodes -->
+  <circle cx="4" cy="12" r="1.5" fill="#4DB6AC"/>
+  <circle cx="4" cy="16" r="1.5" fill="#4DB6AC"/>
+  <circle cx="4" cy="20" r="1.5" fill="#4DB6AC"/>
+  
+  <circle cx="28" cy="12" r="1.5" fill="#4DB6AC"/>
+  <circle cx="28" cy="16" r="1.5" fill="#4DB6AC"/>
+  <circle cx="28" cy="20" r="1.5" fill="#4DB6AC"/>
+  
+  <!-- Connection lines -->
+  <line x1="5.5" y1="12" x2="8" y2="13" stroke="#4DB6AC" stroke-width="1.5"/>
+  <line x1="5.5" y1="16" x2="8" y2="16" stroke="#4DB6AC" stroke-width="1.5"/>
+  <line x1="5.5" y1="20" x2="8" y2="18" stroke="#4DB6AC" stroke-width="1.5"/>
+  
+  <line x1="24" y1="13" x2="26.5" y2="12" stroke="#4DB6AC" stroke-width="1.5"/>
+  <line x1="24" y1="16" x2="26.5" y2="16" stroke="#4DB6AC" stroke-width="1.5"/>
+  <line x1="24" y1="18" x2="26.5" y2="20" stroke="#4DB6AC" stroke-width="1.5"/>
+</svg>

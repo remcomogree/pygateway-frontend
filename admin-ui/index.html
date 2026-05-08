@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyGateway Admin UI</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">PyGateway Admin</div>
+            <nav class="nav">
+                <a href="#" onclick="showSection('dashboard')" class="active">Dashboard</a>
+                <a href="#" onclick="showSection('certificates')">Certificates</a>
+                <a href="#" onclick="showSection('providers')">Providers</a>
+                <a href="#" onclick="showSection('api')">API</a>
+                <a href="#" onclick="showSection('debug')">Debug</a>
+                <a href="#" onclick="showSection('consumers')">Consumers</a>
+                <a href="#" onclick="showSection('monetization')">Monetization</a>
+                <a href="#" onclick="showSection('analytics')">Analytics</a>
+                <a href="#" onclick="showSection('config')">Configuration</a>
+                <a href="#" onclick="showSection('dataplanes')">Dataplanes</a>
+                <a href="llm.html" target="_blank">LLM Management</a>
+
+                <!-- <a href="#" onclick="showSection('workspaces')">Workspaces</a>
+                <a href="#" onclick="showSection('services')">Services</a>
+                <a href="#" onclick="showSection('routes')">Routes</a>
+                <a href="#" onclick="showSection('plugins')">Plugins</a> -->
+          
+
+            </nav>
+            <div class="user-info" id="userInfo" style="display: none;">
+                <span class="user-name" id="userName">User</span>
+                <button class="btn btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section">
+            <div class="card">
+                <h2>Dashboard</h2>
+                <p>Welcome to PyGateway Admin UI</p>
+                <div id="dashboard-stats">
+                    <div class="loading">Loading dashboard...</div>
+                </div>
+            </div>
+        </div>
+        <!-- Certificates Section -->
+        <div id="certificates" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Certificates</h2>
+                    <button class="btn btn-success" onclick="showCreateCertificateModal()">Add Certificate</button>
+                </div>
+                <div id="certificates-content">
+                    <div class="loading">Loading certificates...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Providers Section -->
+        <div id="providers" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Providers</h2>
+                    <button class="btn btn-success" onclick="showCreateProviderModal()">Add Provider</button>
+                </div>
+                <div id="providers-content">
+                    <div class="loading">Loading providers...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workspaces Section -->
+        <div id="workspaces" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Workspaces</h2>
+                    <button class="btn btn-success" onclick="showCreateWorkspaceModal()">Add Workspace</button>
+                </div>
+                <div id="workspaces-content">
+                    <div class="loading">Loading workspaces...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Section -->
+        <div id="services" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Services</h2>
+                    <button class="btn btn-success" onclick="showCreateServiceModal()">Add Service</button>
+                </div>
+                <div id="services-content">
+                    <div class="loading">Loading services...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Routes Section -->
+        <div id="routes" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Routes</h2>
+                    <button class="btn btn-success" onclick="showCreateRouteModal()">Add Route</button>
+                </div>
+                <div id="routes-content">
+                    <div class="loading">Loading routes...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plugins Section -->
+        <div id="plugins" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Plugins</h2>
+                    <button class="btn btn-success" onclick="showCreatePluginModal()">Add Plugin</button>
+                </div>
+                <div id="plugins-content">
+                    <div class="loading">Loading plugins...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataplanes Section -->
+        <div id="dataplanes" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Dataplanes <span id="dataplaneCount" class="dataplane-info"></span></h2>
+                    <div>
+                        <button class="btn" onclick="loadDataplanes()">Refresh</button>
+                        <button class="btn" onclick="toggleAutoRefresh()" id="autoRefreshBtn">Auto-refresh: OFF</button>
+                    </div>
+                </div>
+                <div id="dataplanes-content">
+                    <div class="loading">Loading dataplanes...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analytics" class="section" style="display: none;">
+            <div class="card">
+                <h2>Analytics</h2>
+                <div id="analytics-content">
+                    <div class="loading">Loading analytics...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Section -->
+        <div id="config" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Gateway Configuration</h2>
+                    <div>
+                        <button class="btn" onclick="loadConfiguration()" style="margin-right: 10px;">Refresh</button>
+                        <button class="btn btn-success" onclick="downloadConfiguration()">Download JSON</button>
+                    </div>
+                </div>
+                <div id="config-content">
+                    <div class="loading">Loading configuration...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Configuration Modal -->
+        <div id="editConfigModal" class="edit-modal">
+            <div class="edit-modal-content">
+                <div class="edit-modal-header">
+                    <h2 class="edit-modal-title" id="editModalTitle">Edit Configuration</h2>
+                    <span class="close" onclick="closeEditModal()">&times;</span>
+                </div>
+                <div>
+                    <label for="editConfigTextarea">Configuration (JSON)</label>
+                    <textarea id="editConfigTextarea" class="edit-textarea" placeholder="Enter JSON configuration..."></textarea>
+                </div>
+                <div class="edit-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="saveConfiguration()">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Workspace Modal -->
+        <div id="createWorkspaceModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('createWorkspaceModal')">&times;</span>
+                <h2 id="workspaceModalTitle">Create Workspace</h2>
+                <form id="createWorkspaceForm">
+                    <div class="form-group">
+                        <label for="workspaceName">Name</label>
+                        <input type="text" id="workspaceName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="workspaceDescription">Description</label>
+                        <textarea id="workspaceDescription" name="description" rows="3" placeholder="Optional description for this workspace"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="workspaceEnabled">
+                            <input type="checkbox" id="workspaceEnabled" name="enabled" checked>
+                            Enabled
+                        </label>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-success" id="workspaceModalSaveBtn">Create Workspace</button>
+                        <button type="button" class="btn" onclick="closeModal('createWorkspaceModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Create Service Modal -->
+        <div id="createServiceModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('createServiceModal')">&times;</span>
+                <h2>Create Service</h2>
+                <form id="createServiceForm">
+                    <div class="form-group">
+                        <label for="serviceWorkspace">Workspace</label>
+                        <select id="serviceWorkspace" name="workspace_id" required>
+                            <option value="">Select a workspace...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="serviceName">Name</label>
+                        <input type="text" id="serviceName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="serviceProvider">Provider (Optional)</label>
+                        <select id="serviceProvider" name="provider_id" onchange="toggleServiceFields()">
+                            <option value="">Select a provider or configure manually...</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="serviceHost">Host</label>
+                            <input type="text" id="serviceHost" name="host">
+                        </div>
+                        <div class="form-group">
+                            <label for="servicePort">Port</label>
+                            <input type="number" id="servicePort" name="port">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="serviceProtocol">Protocol</label>
+                            <select id="serviceProtocol" name="protocol">
+                                <option value="http">HTTP</option>
+                                <option value="https">HTTPS</option>
+                                <option value="grpc">gRPC</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="servicePath">Path</label>
+                            <input type="text" id="servicePath" name="path" placeholder="/">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="serviceConnectTimeout">Connect Timeout (ms)</label>
+                            <input type="number" id="serviceConnectTimeout" name="connect_timeout" placeholder="60000">
+                        </div>
+                        <div class="form-group">
+                            <label for="serviceStreaming">Streaming API</label>
+                            <select id="serviceStreaming" name="streaming">
+                                <option value="false">No</option>
+                                <option value="true">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="serviceMaxRequestSize">Max Request Size (bytes)</label>
+                            <input type="number" id="serviceMaxRequestSize" name="max_request_size" placeholder="Default: 10MB">
+                        </div>
+                        <div class="form-group">
+                            <label for="serviceMaxResponseSize">Max Response Size (bytes)</label>
+                            <input type="number" id="serviceMaxResponseSize" name="max_response_size" placeholder="Default: 10MB">
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-success">Create Service</button>
+                        <button type="button" class="btn" onclick="closeModal('createServiceModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Create Provider Modal -->
+        <div id="createProviderModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('createProviderModal')">&times;</span>
+                <h2>Create Provider</h2>
+                <form id="createProviderForm">
+                    <div class="form-group">
+                        <label for="providerName">Name</label>
+                        <input type="text" id="providerName" name="name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="providerHost">Host</label>
+                            <input type="text" id="providerHost" name="host" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="providerPort">Port</label>
+                            <input type="number" id="providerPort" name="port" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="providerProtocol">Protocol</label>
+                            <select id="providerProtocol" name="protocol">
+                                <option value="http">HTTP</option>
+                                <option value="https">HTTPS</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="providerPath">Path Prefix</label>
+                            <input type="text" id="providerPath" name="path" placeholder="/">
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-success">Create Provider</button>
+                        <button type="button" class="btn" onclick="closeModal('createProviderModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Create Route Modal -->
+        <div id="createRouteModal" class="modal">
+            <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+                <span class="close" onclick="closeModal('createRouteModal')">&times;</span>
+                <h2>Create Route</h2>
+                <form id="createRouteForm">
+                    <!-- Basic Configuration -->
+                    <div class="form-section">
+                        <div class="form-section-title">Basic Configuration</div>
+                        
+                        <div class="form-group">
+                            <label for="routeName">Name *</label>
+                            <input type="text" id="routeName" name="name" required placeholder="my-api-route">
+                            <small>A descriptive name for this route</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="routeService">Service *</label>
+                            <select id="routeService" name="service_id" required>
+                                <option value="">Select a service</option>
+                            </select>
+                            <small>The backend service this route will forward requests to</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" id="routeEnabled" name="enabled" checked>
+                                Enabled
+                            </label>
+                            <small>Route will only process requests when enabled</small>
+                        </div>
+                    </div>
+
+                    <!-- Request Matching -->
+                    <div class="form-section">
+                        <div class="form-section-title">Request Matching</div>
+                        
+                        <div class="form-group">
+                            <label for="routePaths">Paths (comma-separated)</label>
+                            <input type="text" id="routePaths" name="paths" placeholder="/api/v1/*, /users, /health">
+                            <small>URL paths that should match this route. Examples: /api/v1/users, /api/*, /health</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="routeHosts">Hosts (comma-separated)</label>
+                            <input type="text" id="routeHosts" name="hosts" placeholder="api.example.com, www.example.com">
+                            <small>Host headers that should match this route. Leave empty to match any host</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Protocols</label>
+                            <div class="checkbox-group">
+                                <label>
+                                    <input type="checkbox" name="protocols" value="http" checked> HTTP
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="protocols" value="https" checked> HTTPS
+                                </label>
+                            </div>
+                            <small>Which protocols this route should accept</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>HTTP Methods</label>
+                            <div class="checkbox-group">
+                                <label>
+                                    <input type="checkbox" name="methods" value="GET" checked> GET
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="methods" value="POST" checked> POST
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="methods" value="PUT" checked> PUT
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="methods" value="DELETE" checked> DELETE
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="methods" value="PATCH" checked> PATCH
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="methods" value="HEAD" checked> HEAD
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="methods" value="OPTIONS" checked> OPTIONS
+                                </label>
+                            </div>
+                            <small>Which HTTP methods this route should accept</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="routeResources">Resources (comma-separated)</label>
+                            <input type="text" id="routeResources" name="resources" placeholder="resource1, resource2">
+                            <small>Optional: List of resource strings. If defined, a request must match both the path and one of these resources for the route to apply. The request path is used as the resource string for matching.</small>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Options -->
+                    <div class="form-section">
+                        <div class="form-section-title">Advanced Options</div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" id="routeStripPath" name="strip_path" checked>
+                                Strip Path
+                            </label>
+                            <small>Remove the route path from the request before forwarding to the service. Example: /api/v1/users → /users</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" id="routePreserveHost" name="preserve_host">
+                                Preserve Host
+                            </label>
+                            <small>Forward the original Host header to the upstream service instead of using the service's host</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="routeRegexPriority">Regex Priority</label>
+                            <input type="number" id="routeRegexPriority" name="regex_priority" value="0" min="0" max="100">
+                            <small>Higher priority routes are matched first when multiple routes could match (0-100)</small>
+                        </div>
+                    </div>
+
+                    <!-- gRPC Fields (hidden by default, shown if service is gRPC) -->
+                    <div id="grpcFields" style="display: none; margin-top: 1rem;">
+                        <div class="form-group">
+                            <label for="grpcService">gRPC Service Name</label>
+                            <input type="text" id="grpcService" name="grpc_service" placeholder="MyService">
+                        </div>
+                        <div class="form-group">
+                            <label for="grpcMethod">gRPC Method Name</label>
+                            <input type="text" id="grpcMethod" name="grpc_method" placeholder="MyMethod">
+                        </div>
+                        <div class="form-group">
+                            <label for="protobufDefinition">Protobuf Definition (.proto)</label>
+                            <textarea id="protobufDefinition" name="protobuf_definition" rows="5" placeholder="syntax = 'proto3'; ..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem; border-top: 1px solid #e2e8f0; padding-top: 1.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('createRouteModal')">Cancel</button>
+                        <button type="submit" class="btn btn-success">Create Route</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Create Plugin Modal -->
+        <div id="createPluginModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('createPluginModal')">&times;</span>
+                <h2>Create Plugin</h2>
+                <form id="createPluginForm">
+                    <div class="form-group">
+                        <label for="pluginName">Plugin Type</label>
+                        <select id="pluginName" name="name" required onchange="loadPluginSchema()">
+                            <option value="">Select a plugin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pluginService">Service (optional)</label>
+                        <select id="pluginService" name="service_id">
+                            <option value="">Global plugin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pluginRoute">Route (optional)</label>
+                        <select id="pluginRoute" name="route_id">
+                            <option value="">Any route</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="pluginEnabled" name="enabled" checked> 
+                            Plugin Enabled
+                        </label>
+                    </div>
+                    
+                    <!-- Dynamic Plugin Configuration -->
+                    <div id="pluginConfigSection" style="display: none;">
+                        <h3>
+                            Plugin Configuration 
+                            <span id="fieldCounter" style="font-size: 0.8em; color: #6c757d; font-weight: normal;"></span>
+                        </h3>
+                        <div id="pluginConfigFields"></div>
+                        
+                        <!-- Advanced: Raw JSON Editor -->
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label>
+                                <input type="checkbox" id="useRawJson" onchange="toggleRawJsonMode()"> 
+                                Use Raw JSON Configuration
+                            </label>
+                        </div>
+                        <div class="form-group" id="rawJsonSection" style="display: none;">
+                            <label for="pluginConfig">Configuration (JSON)</label>
+                            <textarea id="pluginConfig" name="config" rows="5" placeholder='{"key": "value"}'></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-success">Create Plugin</button>
+                        <button type="button" class="btn" onclick="closeModal('createPluginModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dataplane Details Modal -->
+        <div id="dataplaneDetailsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Dataplane Details</h2>
+                    <span class="close" onclick="closeModal('dataplaneDetailsModal')">&times;</span>
+                </div>
+                <div id="dataplaneDetailsContent">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Certificate Modal -->
+        <div id="createCertificateModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('createCertificateModal')">&times;</span>
+                <h2>Create Certificate</h2>
+                <form id="createCertificateForm">
+                    <div class="form-group">
+                        <label for="certificateName">Name</label>
+                        <input type="text" id="certificateName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="certificateData">Certificate Data</label>
+                        <textarea id="certificateData" name="data" rows="5" required></textarea>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-success">Create Certificate</button>
+                        <button type="button" class="btn" onclick="closeModal('createCertificateModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Consumers Section -->
+        <div id="consumers" class="section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Consumers</h2>
+                    <button class="btn btn-success" onclick="showCreateConsumerModal()">Add Consumer</button>
+                </div>
+                <div id="consumers-content">
+                    <div class="loading">Loading consumers...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Consumer Modal -->
+        <div id="createConsumerModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('createConsumerModal')">&times;</span>
+                <h2>Create Consumer</h2>
+                <form id="createConsumerForm">
+                    <div class="form-group">
+                        <label for="consumerUsername">Username</label>
+                        <input type="text" id="consumerUsername" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="consumerCustomId">Custom ID</label>
+                        <input type="text" id="consumerCustomId" name="custom_id">
+                    </div>
+                    <div class="form-group">
+                        <label for="consumerTags">Tags (comma separated)</label>
+                        <input type="text" id="consumerTags" name="tags">
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-success">Create Consumer</button>
+                        <button type="button" class="btn" onclick="closeModal('createConsumerModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Consumer Modal -->
+        <div id="editConsumerModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('editConsumerModal')">&times;</span>
+                <h2>Edit Consumer</h2>
+                <form id="editConsumerForm">
+                    <input type="hidden" id="editConsumerId" name="id">
+                    <div class="form-group">
+                        <label for="editConsumerUsername">Username</label>
+                        <input type="text" id="editConsumerUsername" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editConsumerCustomId">Custom ID</label>
+                        <input type="text" id="editConsumerCustomId" name="custom_id">
+                    </div>
+                    <div class="form-group">
+                        <label for="editConsumerTags">Tags (comma separated)</label>
+                        <input type="text" id="editConsumerTags" name="tags">
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                        <button type="button" class="btn" onclick="closeModal('editConsumerModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Monetization Section -->
+        <div id="monetization" class="section" style="display: none;">
+            <div class="card">
+                <h2>Monetization</h2>
+                <div class="tabs">
+                    <button class="tab-btn" onclick="showMonetizationTab('plans')">Plans</button>
+                    <button class="tab-btn" onclick="showMonetizationTab('subscriptions')">Subscriptions</button>
+                    <button class="tab-btn" onclick="showMonetizationTab('usage-events')">Usage Events</button>
+                    <button class="tab-btn" onclick="showMonetizationTab('usage-aggregations')">Aggregations</button>
+                </div>
+                <div id="monetization-plans-content" class="monetization-tab-content"></div>
+                <div id="monetization-subscriptions-content" class="monetization-tab-content" style="display:none;"></div>
+                <div id="monetization-usage-events-content" class="monetization-tab-content" style="display:none;"></div>
+                <div id="monetization-usage-aggregations-content" class="monetization-tab-content" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- API Section -->
+        <div id="api" class="section" style="display: none;">
+            <div class="card api-card">
+                <h2>API</h2>
+                <div class="tabs">
+                    <button class="tab-btn" onclick="showApiTab('workspaces')">Workspaces</button>
+                    <button class="tab-btn" onclick="showApiTab('services')">Services</button>
+                    <button class="tab-btn" onclick="showApiTab('routes')">Routes</button>
+                    <button class="tab-btn" onclick="showApiTab('plugins')">Plugins</button>
+                    <button class="btn btn-success" id="apiAddWorkspaceBtn" style="float:right; margin-left: auto; display:none;" onclick="showCreateWorkspaceModal()">Add Workspace</button>
+                    <button class="btn btn-success" id="apiAddServiceBtn" style="float:right; margin-left: 0.5rem; display:none;" onclick="showCreateServiceModal()">Add Service</button>
+                    <button class="btn btn-success" id="apiAddRouteBtn" style="float:right; margin-left: 0.5rem; display:none;" onclick="showCreateRouteModal()">Add Route</button>
+                    <button class="btn btn-success" id="apiAddPluginBtn" style="float:right; margin-left: 0.5rem; display:none;" onclick="showCreatePluginModal()">Add Plugin</button>
+                </div>
+                
+                <div id="api-workspaces-content" class="api-tab-content"></div>
+                <div id="api-services-content" class="api-tab-content" style="display:none;"></div>
+                <div id="api-routes-content" class="api-tab-content" style="display:none;"></div>
+                <div id="api-plugins-content" class="api-tab-content" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- Service Routes Modal -->
+        <div id="serviceRoutesModal" class="modal">
+            <div class="modal-content" id="serviceRoutesModalContent">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Debug Section -->
+        <div id="debug" class="section" style="display: none;"></div>
+    </div>
+
+    <script src="js/cross-app-sso.js"></script>
+    <script src="js/security.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/certificates.js"></script>
+    <script src="js/providers.js"></script>
+    <script src="js/workspaces.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/monetization.js"></script>
+    <script src="js/consumers.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/debug.js"></script>
+    <script src="js/debug_graphical.js"></script>
+</body>
+</html>

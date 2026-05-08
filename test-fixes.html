@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API Fixes</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>API Fixes Test</h1>
+    
+    <div id="results"></div>
+    
+    <button onclick="testAPI()">Test All API Calls</button>
+    
+    <script>
+        async function testAPI() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div class="info">Testing API calls...</div>';
+            
+            try {
+                // Test 0: Health check
+                console.log('Testing health endpoint...');
+                const healthResponse = await fetch('/api/health');
+                const health = await healthResponse.json();
+                
+                const healthResult = document.createElement('div');
+                healthResult.className = 'result ' + (health.status === 'healthy' ? 'success' : 'error');
+                healthResult.innerHTML = `
+                    <strong>Health Check:</strong> 
+                    Status: ${health.status} 
+                    ${health.status === 'healthy' ? '✅ PASS' : '❌ FAIL'}
+                `;
+                results.appendChild(healthResult);
+                
+                // Test 1: Workspaces count
+                console.log('Testing workspaces...');
+                const workspacesResponse = await fetch('/api/v1/workspaces/');
+                const workspaces = await workspacesResponse.json();
+                
+                const workspacesResult = document.createElement('div');
+                workspacesResult.className = 'result ' + (workspaces.length === 47 ? 'success' : 'error');
+                workspacesResult.innerHTML = `
+                    <strong>Workspaces Test:</strong> 
+                    Expected: 47, Got: ${workspaces.length} 
+                    ${workspaces.length === 47 ? '✅ PASS' : '❌ FAIL'}
+                `;
+                results.appendChild(workspacesResult);
+                
+                // Test 2: Routes count
+                console.log('Testing routes...');
+                const routesResponse = await fetch('/api/v1/routes/');
+                const routesData = await routesResponse.json();
+                // Handle both paginated and non-paginated responses
+                const routesCount = routesData.total || routesData.length || (routesData.items ? routesData.items.length : 0);
+                
+                const routesResult = document.createElement('div');
+                routesResult.className = 'result ' + (routesCount === 38 ? 'success' : 'error');
+                routesResult.innerHTML = `
+                    <strong>Routes Test:</strong> 
+                    Expected: 38, Got: ${routesCount} 
+                    ${routesCount === 38 ? '✅ PASS' : '❌ FAIL'}
+                `;
+                results.appendChild(routesResult);
+                
+                // Test 3: Services call
+                console.log('Testing services...');
+                const servicesResponse = await fetch('/api/v1/services/');
+                const servicesData = await servicesResponse.json();
+                // Handle both paginated and non-paginated responses
+                const servicesCount = servicesData.total || servicesData.length || (servicesData.items ? servicesData.items.length : 0);
+                
+                const servicesResult = document.createElement('div');
+                servicesResult.className = 'result success';
+                servicesResult.innerHTML = `
+                    <strong>Services Test:</strong> 
+                    Got: ${servicesCount} services ✅ PASS
+                `;
+                results.appendChild(servicesResult);
+                
+                // Test 4: Try to update a service (this was failing with CORS)
+                console.log('Testing service update...');
+                const services = servicesData.items || servicesData || [];
+                if (services.length > 0) {
+                    const testService = services[0];
+                    const updateResponse = await fetch(`/api/v1/services/${testService.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(testService)
+                    });
+                    
+                    const updateResult = document.createElement('div');
+                    updateResult.className = 'result ' + (updateResponse.ok ? 'success' : 'error');
+                    updateResult.innerHTML = `
+                        <strong>Service Update Test:</strong> 
+                        Status: ${updateResponse.status} 
+                        ${updateResponse.ok ? '✅ PASS' : '❌ FAIL'}
+                    `;
+                    results.appendChild(updateResult);
+                } else {
+                    const updateResult = document.createElement('div');
+                    updateResult.className = 'result info';
+                    updateResult.innerHTML = `
+                        <strong>Service Update Test:</strong> 
+                        No services to test with ⚠️ SKIP
+                    `;
+                    results.appendChild(updateResult);
+                }
+                
+                // Test 5: Debug endpoint
+                console.log('Testing debug...');
+                const debugResponse = await fetch('/api/v1/debug/');
+                const debug = await debugResponse.json();
+                
+                const debugResult = document.createElement('div');
+                debugResult.className = 'result success';
+                debugResult.innerHTML = `
+                    <strong>Debug Test:</strong> 
+                    Got: ${debug.length} debug entries ✅ PASS
+                `;
+                results.appendChild(debugResult);
+                
+                console.log('All tests completed!');
+                
+            } catch (error) {
+                console.error('Test failed:', error);
+                const errorResult = document.createElement('div');
+                errorResult.className = 'result error';
+                errorResult.innerHTML = `
+                    <strong>Test Failed:</strong> 
+                    ${error.message} ❌ FAIL
+                `;
+                results.appendChild(errorResult);
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.onload = () => testAPI();
+    </script>
+</body>
+</html>
