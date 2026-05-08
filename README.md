@@ -1,420 +1,192 @@
-# PyGateway Admin UI - React Implementation
+# PyGateway Admin UI
 
-A complete React reimplementation of the PyGateway admin interface, preserving all functionality from the original vanilla JavaScript version while providing modern development experience.
+React + [Tabler](https://tabler.io/) admin interface for PyGateway.
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
-# Install dependencies
 npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Run tests
-npm test
-
-# Validate implementation
-./test-implementation.sh
+npm run dev        # development server (proxies /api/v1/* → localhost:8001)
+npm run build      # production build → dist/
+npm run test:run   # run test suite
+npm run lint       # ESLint
 ```
 
-## 📋 Features
+## Tech Stack
 
-### ✅ Complete Feature Parity
-This React implementation includes **all** functionality from the original `admin-ui` folder:
+| Layer | Technology |
+|---|---|
+| Framework | React 18 |
+| UI | Tabler 1.4 + `@tabler/icons-react` |
+| Build | Vite |
+| State | React Context + reducer (`AppState.jsx`) |
+| Validation | Zod |
+| Charts | Chart.js + react-chartjs-2 |
+| Routing | React Router v6 |
+| Tests | Vitest + Cypress (E2E) |
 
-#### 🏠 Dashboard
-- Real-time system statistics
-- Interactive navigation cards
-- Auto-refresh every 30 seconds
-- Configuration display
-- Dataplane status monitoring
-- Quick action buttons
+## Features
 
-#### 🔧 API Management
-- **Workspaces**: Create, edit, delete workspaces with service counts
-- **Services**: Full CRUD with provider integration, health monitoring
-- **Routes**: Path management, method filtering, service association
-- **Plugins**: Configuration, scope management, enable/disable
+### Dashboard
+- Live stat cards: workspaces, services, routes, plugins, consumers
+- Auto-refresh every 30 s
+- System configuration display
+- Backend health monitoring
 
-#### 🔒 Security
-- **Consumers**: API consumer management
-- **API Keys**: Key generation, management, usage tracking
-- **Authentication**: Multiple auth methods (API Key, Basic, JWT, OAuth2)
-- **Rate Limiting**: Request throttling and IP restrictions
+### API Management (`/api`)
+- **Workspaces** — CRUD with service-count display
+- **Services** — CRUD, provider integration, streaming & buffer config
+- **Routes** — Path/host/method/protocol management, service association
+- **Plugins** — Dynamic schema-driven config, scope targeting, enable/disable
+- **ABAC Policies** — Attribute-based access control rules + OIDC engine management
 
-#### 🛡️ Administration
-- **Audit Logs**: Searchable, filterable audit trail of all admin API operations (superadmin only)
-  - Filter by method, username, resource type, status code, source IP, date range
-  - Pagination with configurable page sizes
-  - Purge old entries with date-based filtering
-- **Certificates**: SSL/TLS certificate management (moved under Admin)
-  - Certificate validation and expiry monitoring
-  - SNI configuration
-- **RBAC**: Role-based access control
-  - `superadmin`: Full access including audit logs and dataplane management
-  - `admin`: Read/write access to all resources
-  - `readonly`: Read-only access, write operations hidden
+### Security
+- **Consumers** — User/API-key lifecycle management
+- **API Keys** — Generation, revocation, usage tracking
+- **Consumer Policies** — Role and method-level permissions per consumer
+- **Service Policies** — Required-role enforcement per service
 
-#### 🔐 Authentication
-- JWT-based authentication with Bearer tokens
-- Login with username/password
-- Token persistence in localStorage
-- Automatic auth state restoration on page reload
-- Fallback to superadmin login endpoint
+### Dataplanes
+Fetches `/api/v1/websocket/status` (auto-refresh every 30 s) and displays:
 
-#### 📊 Analytics & Monitoring
-- Usage reports with interactive charts
-- Request trends visualization
-- Service performance metrics
-- Error rate monitoring
-- System information display
+- **Summary stat cards** — Online/offline counts, active WS connections, connected dataplanes, max-connection utilisation bar, known fingerprint count
+- **WebSocket Infrastructure card** — enabled/running state, connection utilisation progress bar
+- **Root CA card** — subject, expiry date, CRL revoke count
+- **Dataplane list + detail split panel** — scrollable list of up to 500 dataplanes; click any entry to see:
+  - IP/port, last-seen (relative + absolute UTC-corrected datetime)
+  - WebSocket status badge, connection ID
+  - Last certificate renewed (relative + absolute datetime)
+  - Root cert fingerprint (short + full on hover)
+  - Per-worker table: heartbeat status, uptime, last ACK age, messages sent, send-queue depth/capacity progress bar
+- **Active Connections section** — collapsible per-dataplane cards showing all workers
+- **Known Root Fingerprints table** — full fingerprint, short hash, source IP, first seen
 
-#### 🤖 LLM Management
-- **Provider Management**: Configure OpenAI, Anthropic, Azure OpenAI, Google, etc.
-- **Template System**: Create and manage prompt templates with variables
-- **Tool Registry**: Custom LLM tools and function calling
-- **Security & Content Filtering**: PII detection, prompt injection protection
-- **Analytics & Monitoring**: Usage tracking, performance metrics, cost analysis
-- **Billing Management**: Cost monitoring, budget tracking, usage reports
-- **Code Splitting**: Lazy-loaded components for optimal performance
+> Timestamps from the backend (bare ISO strings without timezone) are forced to UTC before display so relative times are always correct regardless of the browser's local timezone.
 
-#### 🔐 Certificates (under Administration)
-- SSL/TLS certificate management
-- Certificate validation
-- Expiry monitoring
-- SNI configuration
-- RBAC-aware: write operations hidden for readonly users
+### Debug
+Three views for inspecting live request traces:
+- **Tabular** (`DebugView`) — paginated log with overlay detail
+- **Graphical** (`GraphicalDebugView`) — flow diagram per request phase
+- **Fancy/Animated** (`FancyGraphicalDebugView`) — interactive animated trace with timing breakdown
+- **Trace** (`TraceDebugView`) — timeline view aligned to actual backend phase names
 
-#### 🌐 Providers
-- Upstream service providers
-- Timeout and retry configuration
-- Health check management
+### Administration (`/admin`)
+- **Audit Logs** — filterable by method, username, resource type, status code, source IP, date range; pagination; purge by date (superadmin only)
+- **Certificates** — SSL/TLS upload, SNI config, expiry monitoring
 
-## 🏗️ Architecture
+### Analytics
+- Request trend charts, service performance metrics, error-rate monitoring
 
-### State Management
-- **React Context API**: Global state management replacing `window.AppState`
-- **Custom Hooks**: `useAppState()` for consistent state access
-- **Action Creators**: Centralized API operations and state updates
+### Providers
+- Upstream provider CRUD with timeout, retry, and health-check configuration
 
-### Component Structure
+### Monetization
+- Plans, subscriptions, usage aggregation
+
+### LLM Management (`/llm`)
+- Provider config (OpenAI, Anthropic, Azure, Google, …)
+- Prompt template management with variable substitution
+- Tool/function registry
+- PII detection and prompt-injection filtering
+- Usage analytics, cost tracking, budget alerts
+- Lazy-loaded code-split modules for fast initial load
+
+## RBAC
+
+| Role | Read | Write | Audit Logs | Dataplanes |
+|---|---|---|---|---|
+| `superadmin` | ✓ | ✓ | ✓ | ✓ |
+| `admin` | ✓ | ✓ | — | — |
+| `readonly` | ✓ | — | — | — |
+
+Write actions (create/edit/delete buttons) are hidden automatically for `readonly` users.
+
+## Component Structure
+
 ```
 src/
+├── api/
+│   ├── PyGatewayAPI.js       # API client with Zod validation & circuit breaker
+│   └── schemas.js            # Zod schemas for all resources
 ├── components/
-│   ├── MainLayout.jsx           # Main app layout with navigation
-│   ├── DashboardView.jsx        # Real-time dashboard
-│   ├── APIView.jsx              # Tabbed API management
-│   ├── SecurityView.jsx         # Security management
-│   ├── AnalyticsView.jsx        # Analytics and monitoring
-│   ├── AdminView.jsx            # Admin panel (Audit Logs + Certificates)
-│   ├── CertificatesView.jsx     # Legacy standalone cert view
+│   ├── MainLayout.jsx        # Sidebar navigation + routing
+│   ├── DashboardView.jsx
+│   ├── DataplanesView.jsx    # WebSocket / dataplane status dashboard
+│   ├── APIView.jsx
+│   ├── SecurityView.jsx
+│   ├── AnalyticsView.jsx
+│   ├── AdminView.jsx
+│   ├── DebugView.jsx
+│   ├── TraceDebugView.jsx
+│   ├── GraphicalDebugView.jsx
+│   ├── FancyGraphicalDebugView.jsx
+│   ├── ProvidersView.jsx
+│   ├── MonetizationView.jsx
+│   ├── ConfigView.jsx
+│   ├── LoginView.jsx
 │   ├── admin/
-│   │   ├── AuditLogsTab.jsx     # Audit log viewer (superadmin)
-│   │   └── CertificatesTab.jsx  # Certificate management
-│   ├── ProvidersView.jsx        # Service providers
-│   ├── LLMManagementView.jsx    # AI model management
+│   │   ├── AuditLogsTab.jsx
+│   │   └── CertificatesTab.jsx
 │   ├── api/
-│   │   ├── WorkspacesTab.jsx    # Workspace CRUD
-│   │   ├── ServicesTab.jsx      # Service management
-│   │   ├── RoutesTab.jsx        # Route configuration
-│   │   └── PluginsTab.jsx       # Plugin management
-│   └── modals/
-│       └── WorkspaceModal.jsx   # Workspace creation/editing
+│   │   ├── WorkspacesTab.jsx
+│   │   ├── ServicesTab.jsx
+│   │   ├── RoutesTab.jsx
+│   │   ├── PluginsTab.jsx
+│   │   ├── ConsumersTab.jsx
+│   │   └── ABACPoliciesTab.jsx
+│   ├── modals/
+│   │   ├── ServiceModal.jsx
+│   │   ├── WorkspaceModal.jsx
+│   │   ├── RouteModal.jsx
+│   │   ├── ConsumerModal.jsx
+│   │   ├── ConsumerPoliciesModal.jsx
+│   │   ├── ServicePolicyModal.jsx
+│   │   ├── PluginModal.jsx
+│   │   ├── ABACPolicyModal.jsx
+│   │   ├── ServiceVisualizeModal.jsx
+│   │   └── DynamicPluginConfig.jsx
+│   ├── shared/
+│   │   ├── DataTable.jsx
+│   │   ├── StatusBadge.jsx
+│   │   └── FilterStatusBar.jsx
+│   ├── ui/
+│   │   ├── Button.jsx
+│   │   ├── Modal.jsx
+│   │   └── TablerModal.jsx
+│   └── llm/                  # Lazy-loaded LLM management modules
 ├── context/
-│   └── AppState.jsx             # Global state provider
+│   └── AppState.jsx          # Global state (reducer + API action helpers)
 ├── utils/
-│   └── api.js                   # API utilities
-├── App.jsx                      # Main application
-└── main.jsx                     # React entry point
+│   └── api.js                # authenticatedFetch, API_BASE_URL
+└── main.jsx
 ```
 
-### Styling
-- **Original CSS**: Complete preservation of `admin-ui/css/main.css`
-- **Responsive Design**: Mobile-friendly layouts
-- **Component Styling**: Modular CSS with original color schemes
-- **Animations**: Preserved hover effects and transitions
+## API Client
 
-## 🔄 Migration from Original
+`PyGatewayAPI.js` wraps every endpoint with:
+- Automatic `Authorization: Bearer <token>` headers
+- Zod request/response validation
+- Empty-string → `null` coercion for nullable fields
+- Circuit breaker (configurable failure threshold)
+- Emoji-prefixed console logging (`🏗️` start, `✅` success, `❌` error)
 
-### What's Different
-- **Framework**: React instead of vanilla JavaScript
-- **State Management**: React Context instead of `window.AppState`
-- **Module System**: ES6 imports instead of script tags
-- **Build Process**: Vite instead of direct HTML serving
+Backend is expected at `localhost:8001`. The Vite dev proxy rewrites `/api/v1/*` so no base URL is hardcoded in components.
 
-### What's Preserved
-- **Visual Design**: Identical appearance and styling
-- **Functionality**: All original features and workflows
-- **API Integration**: Same endpoints and data structures
-- **User Experience**: Identical navigation and interactions
+## Deployment
 
-## 🛠️ Development
-
-### Prerequisites
-- Node.js 18+ 
-- npm 9+
-
-### Environment Setup
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd pygateway-frontend
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
+npm run build      # outputs to dist/
 ```
 
-### Available Scripts
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build locally
-- `npm test` - Run test suite
-- `npm run lint` - Run ESLint
-- `./test-implementation.sh` - Validate complete implementation
+Serve `dist/` from any static host. Ensure `/api/v1/*` requests are proxied to the PyGateway backend.
 
-### Development Features
-- **Hot Module Replacement**: Instant updates during development
-- **Source Maps**: Full debugging support
-- **TypeScript Support**: Ready for TypeScript migration
-- **Modern Tooling**: ESLint, Prettier configuration
+## Troubleshooting
 
-## 📡 API Integration
-
-### Authentication & RBAC
-```javascript
-// JWT authentication with automatic token handling
-const { state, api, rawApi } = useAppState();
-const user = state.currentUser; // { username, role, roles }
-
-// Role-based access
-if (user.role === 'superadmin') {
-  const logs = await rawApi.getAuditLogs({ page: 1, page_size: 50 });
-}
-
-// API calls automatically include Bearer token
-const data = await api.loadWorkspaces();
-```
-
-**Roles:**
-| Role | Read | Write | Audit Logs | Dataplanes |
-|------|------|-------|------------|------------|
-| `superadmin` | Yes | Yes | Yes | Yes |
-| `admin` | Yes | Yes | No | No |
-| `readonly` | Yes | No | No | No |
-
-### Error Handling
-- Centralized error management
-- Loading states for all operations
-- User-friendly error messages
-- Retry mechanisms
-
-### Data Flow
-1. Components use `useAppState()` hook
-2. Actions trigger API calls via `api` methods
-3. State updates trigger re-renders
-4. Loading/error states managed automatically
-
-## 🎨 UI Components
-
-### Reusable Components
-- **Cards**: Consistent styling for content areas
-- **Tables**: Sortable, filterable data displays
-- **Modals**: Form overlays for create/edit operations
-- **Buttons**: Styled action buttons with states
-- **Status Badges**: Visual status indicators
-
-### Responsive Design
-- Mobile-first approach
-- Flexible grid layouts
-- Collapsible navigation
-- Touch-friendly interactions
-
-## 🎨 Design System & Accessibility
-
-### Standardized Components
-- **Button System**: Consistent styling with `Button`, `IconButton`, `ActionButtons`
-- **Modal Components**: Accessible modals with keyboard navigation and focus management
-- **Form Components**: Standardized form inputs with validation
-- **Accessibility Features**: ARIA labels, keyboard navigation, screen reader support
-
-### Button Standards
-```jsx
-// Standard action buttons
-<EditButton onClick={handleEdit} ariaLabel="Edit provider" />
-<DeleteButton onClick={handleDelete} ariaLabel="Delete provider" />
-<TestButton onClick={handleTest} loading={isTesting} />
-
-// Consistent Cancel buttons
-<Button variant="secondary" size="sm">Cancel</Button>
-```
-
-### Accessibility Features
-- **Keyboard Navigation**: Full keyboard support for all components
-- **ARIA Labels**: Comprehensive labeling for screen readers
-- **Focus Management**: Proper focus handling in modals and forms
-- **Color Contrast**: WCAG compliant color schemes
-- **Semantic HTML**: Proper HTML structure for assistive technologies
-
-## 🔧 TypeScript Integration
-
-### Schema Validation
-- **Zod Schemas**: Runtime validation with TypeScript types
-- **API Type Safety**: Strongly typed API requests and responses
-- **Form Validation**: Type-safe form handling and validation
-
-### Type Definitions
-```typescript
-// Example: LLM Provider types
-export type LLMProviderCreate = z.infer<typeof LLMProviderCreateSchema>;
-export type LLMProviderResponse = z.infer<typeof LLMProviderResponseSchema>;
-
-// Usage in components
-const provider: LLMProviderResponse = await api.createLLMProvider(data);
-```
-
-### Migration Strategy
-- API layer: Complete TypeScript schemas (`src/types/api-schemas.ts`)
-- Components: Gradual migration from `.jsx` to `.tsx`
-- Context: Type-safe state management
-- Utils: Strongly typed utility functions
-
-## ⚡ Performance Optimizations
-
-### Code Splitting
-```jsx
-// Lazy loading for LLM components
-import { LLMComponents, preloadLLMComponents } from './llm/LazyComponents';
-
-// Automatic component lazy loading
-const Component = LLMComponents[activeTab];
-return <Component />;
-```
-
-### Performance Features
-- **React.lazy**: Automatic code splitting for LLM modules
-- **Preloading**: Strategic component preloading for better UX
-- **Bundle Optimization**: Optimized builds with tree shaking
-- **Memory Management**: Proper cleanup and state management
-
-## 🔧 Configuration
-
-### Environment Variables
+**Dev server won't start**
 ```bash
-VITE_API_BASE_URL=http://localhost:8000  # PyGateway API URL
-VITE_APP_TITLE=PyGateway Admin           # Application title
+rm -rf node_modules package-lock.json && npm install
 ```
 
-### Build Configuration
-- **Vite**: Modern build tool with optimal defaults
-- **React**: Latest stable version with concurrent features
-- **PostCSS**: CSS processing and optimization
-
-## 🚀 Deployment
-
-### Production Build
-```bash
-npm run build
-```
-
-### Deployment Options
-- **Static Hosting**: Serve `dist/` folder
-- **CDN**: Deploy to AWS CloudFront, Cloudflare, etc.
-- **Docker**: Containerized deployment
-- **CI/CD**: Automated builds and deployments
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-#### Development Server Won't Start
-```bash
-# Clear npm cache
-npm cache clean --force
-
-# Remove node_modules and reinstall
-rm -rf node_modules package-lock.json
-npm install
-```
-
-#### Build Errors
-```bash
-# Check for TypeScript errors
-npm run type-check
-
-# Lint for code issues
-npm run lint
-```
-
-#### API Connection Issues
-1. Check `VITE_API_BASE_URL` environment variable
-2. Verify PyGateway backend is running
-3. Check browser console for CORS errors
-
-## 📚 Documentation
-
-### Component Documentation
-Each component includes:
-- JSDoc comments
-- Prop type definitions
-- Usage examples
-- State management patterns
-
-### API Documentation
-- Endpoint mappings
-- Request/response schemas
-- Error handling patterns
-- Authentication requirements
-
-## 🤝 Contributing
-
-### Development Workflow
-1. Fork the repository
-2. Create feature branch
-3. Implement changes with tests
-4. Run validation script
-5. Submit pull request
-
-### Code Standards
-- ESLint configuration enforced
-- Prettier for consistent formatting
-- Component naming conventions
-- Git commit message standards
-
-## 📄 License
-
-This project is part of PyGateway and follows the same licensing terms.
-
-## 🎯 Future Enhancements
-
-### Planned Features
-- **Dark Mode**: Theme switching capability
-- **Internationalization**: Multi-language support
-- **Advanced Analytics**: Enhanced reporting and visualization
-- **Real-time Updates**: WebSocket integration for live data
-- **Mobile App**: React Native companion app
-
-### Migration Path
-- TypeScript conversion for enhanced type safety
-- GraphQL integration for optimized data fetching
-- Progressive Web App (PWA) capabilities
-- Advanced caching strategies
-
----
-
-## 🏆 Achievement Summary
-
-✅ **Complete Reimplementation**: All 11 sections from original admin-ui
-✅ **Visual Parity**: Identical appearance and user experience  
-✅ **Modern Architecture**: React, Context API, modern tooling
-✅ **Performance**: Optimized loading and rendering
-✅ **Maintainability**: Clean code structure and documentation
-✅ **Future-Ready**: TypeScript ready, extensible design
-
-The React implementation successfully preserves all functionality from the original admin-ui while providing a modern, maintainable codebase for future development.
+**API errors in browser console**
+- Confirm PyGateway backend is running on port 8001
+- Check `vite.config.js` proxy target if using a different port
